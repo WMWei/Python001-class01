@@ -34,6 +34,8 @@ def get_movie_info(page):
 
 
 if __name__ == '__main__':
+    # 手动设置cookies来避开页面验证
+    # 一次性的反反爬虫手段，多次使用需要手动修改cookie
     header = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Encoding': 'gzip, deflate, br',
@@ -43,18 +45,7 @@ if __name__ == '__main__':
         'Host': 'maoyan.com',
         'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0',
-        'Cookie': 'uuid_n_v=v1; \
-            uuid=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; \
-            mojo-uuid=8ad3f3958fb485f16ba407b0d546f84b; \
-            _lxsdk_cuid=172e10acba162-0cde9cd230ad27-4c302372-e1000-172e10acba2c8; \
-            _lxsdk=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; \
-            Hm_lvt_703e94591e87be68cc8da0da7cbd0be2=1592913482,1593259977; \
-            __mta=142573197.1592913482295.1592913482295.1593259977366.2; \
-            _csrf=a2c686fde0a75623f0b3747cb95a113eedb1e6aa0d904918ebbe11b1507173d1; \
-            mojo-trace-id=1; \
-            mojo-session-id={"id":"f57bbd98bfb6cad94fa2ca0aac68a4ba","time":1593259976072}; \
-            _lxsdk_s=172f5b1e5b2-b76-ca4-568%7C%7C2; \
-            Hm_lpvt_703e94591e87be68cc8da0da7cbd0be2=1593259977'
+        'Cookie': 'uuid_n_v=v1; uuid=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; mojo-uuid=8ad3f3958fb485f16ba407b0d546f84b; _lxsdk_cuid=172e10acba162-0cde9cd230ad27-4c302372-e1000-172e10acba2c8; _lxsdk=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; Hm_lvt_703e94591e87be68cc8da0da7cbd0be2=1592913482,1593259977,1593330056; __mta=142573197.1592913482295.1593330060975.1593330814392.6; _csrf=b85726286cb2f7736205fe315f9cbcb9508112fbf2cf4bcaf2e6854e069e507e; mojo-trace-id=3; mojo-session-id={"id":"ed6b8ec35e44e4578626fed4c2433581","time":1593330051945}; _lxsdk_s=172f9df3870-5ee-381-f7a%7C%7C6; Hm_lpvt_703e94591e87be68cc8da0da7cbd0be2=1593330805'
     }
     home_url = 'https://maoyan.com{}'
     list_url = home_url.format('/films?showType=3')
@@ -68,4 +59,4 @@ if __name__ == '__main__':
         movie_infos.append(movie_info)
     
     movies = pd.DataFrame(data=movie_infos, columns=['片名', '上映日期', '类型'])
-    movies.to_csv('./week01/maoyantop10.csv', encoding='utf-8', index=False,)
+    movies.to_csv('./week01/maoyanmovie_bs/maoyantop10.csv', encoding='utf-8', index=False,)
