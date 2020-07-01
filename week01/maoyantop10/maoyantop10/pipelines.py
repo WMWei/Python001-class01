@@ -6,14 +6,28 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-import pandas as pd
+import csv
 
 
 class Maoyantop10Pipeline:
+    def open_spider(self, spider):
+        self.f = open('./maoyantop10.csv', 'a', encoding='utf-8')
+        self.writer = csv.DictWriter(self.f, fieldnames=[
+            '电影',
+            '类型',
+            '日期',
+            '链接'
+        ])
+        self.writer.writeheader()
+
     def process_item(self, item, spider):
-        movie_name = item['name']
-        movie_type = item['movie_type']
-        movie_date = item['date']
-        movies = pd.DataFrame(data=[[movie_name, movie_type, movie_date],])
-        movies.to_csv('./maoyantop10.csv', mode='a', index=False, header=False)
+        self.writer.writerow({
+            '电影': item['name'],
+            '类型': item['movie_type'],
+            '日期': item['date'],
+            '链接': item['link']
+        })
         return item
+
+    def close_spider(self, spider):
+        self.f.close()
