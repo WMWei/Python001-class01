@@ -5,32 +5,44 @@
 import requests
 import pandas as pd
 from bs4 import BeautifulSoup as bs
+import os.path
 
 
-# 获取页面
-def get_page(url, headers):
-    return requests.get(url, headers=headers).text
+class MaoyanMovie(object):
+    def __init__(self, host, start_url, header, limit=10):
+        self.host = host
+        self.header = header
+        self.start_url = start_url
+        self.content = self.get_html(self.start_url, self.header)
+        self.movies = self.get_movies(self.content)
 
+    def get_html(self, url, header):
+        return requests.get(url, headers=header).text
 
-# 获取目录页的各个电影链接
-def get_movie_url(page, limit=10):
-    bs_page = bs(page, 'html.parser')
-    count = 0
-    for movie_item in bs_page.find_all('div', attrs={'class': 'film-channel'}):
-        if count < limit:
-            yield movie_item.find('a').get('href')
-            count += 1
+    # 解析页面
+    def get_movies(self, page, limit=10):
+        bs_page = bs(page, 'html.parser')
+        count = 0
+        for movie_item in bs_page.find_all('div', attrs={'class': 'film-channel'}):
+            if count < limit:
+                movie = {}
+                movie['url'] = self.host + movie_item.find('a').get('href')
+                movie_info = movie_item.find_all(
+                    'div', 
+                    attrs={'class': 'movie-hover-title'})
+                movie['title'] = movie_info[0].get('title')
+                movie['type'] = movie_info[1].span.next_sibling.strip()
+                movie['date'] = movie_info[3].span.next_sibling.strip()
+                yield movie
+                count += 1
 
-
-# 获取详情页中的目标信息
-def get_movie_info(page):
-    bs_page = bs(page, 'html.parser')
-    movie_tag = bs_page.find('div', attrs={'class': 'movie-brief-container'})
-    name = movie_tag.find('h1').text
-    infos = movie_tag.find('ul').find_all('li')
-    date = infos[2].text[:10]
-    movie_type = infos[0].get_text().strip().replace(' \n ', '/')
-    return name, date, movie_type
+    # 保存
+    def save(self, path):
+        movie_df = pd.DataFrame(data=self.movies)
+        if os.path.splitext(path)[-1] == '.csv':
+            movie_df.to_csv(path, encoding='utf-8', index=False,)
+        else:
+            print(movie_df)
 
 
 if __name__ == '__main__':
@@ -45,18 +57,23 @@ if __name__ == '__main__':
         'Host': 'maoyan.com',
         'Upgrade-Insecure-Requests': '1',
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0',
-        'Cookie': 'uuid_n_v=v1; uuid=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; mojo-uuid=8ad3f3958fb485f16ba407b0d546f84b; _lxsdk_cuid=172e10acba162-0cde9cd230ad27-4c302372-e1000-172e10acba2c8; _lxsdk=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; Hm_lvt_703e94591e87be68cc8da0da7cbd0be2=1592913482,1593259977,1593330056; __mta=142573197.1592913482295.1593330060975.1593330814392.6; _csrf=b85726286cb2f7736205fe315f9cbcb9508112fbf2cf4bcaf2e6854e069e507e; mojo-trace-id=3; mojo-session-id={"id":"ed6b8ec35e44e4578626fed4c2433581","time":1593330051945}; _lxsdk_s=172f9df3870-5ee-381-f7a%7C%7C6; Hm_lpvt_703e94591e87be68cc8da0da7cbd0be2=1593330805'
+        'Cookie': 'uuid_n_v=v1; \
+            uuid=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7; \
+            mojo-uuid=8ad3f3958fb485f16ba407b0d546f84b; \
+            _lxsdk_cuid=172e10acba162-0cde9cd230ad27-4c302372-e1000-172e10acba2c8; \
+            _lxsdk=C8BDDBE0B54811EA8B56A5EC695B0A7354D618B929A648608C072AD80506CCB7;\
+             Hm_lvt_703e94591e87be68cc8da0da7cbd0be2=1592913482,1593259977,\
+            1593330056,1593600565; __mta=142573197.1592913482295.1593330828227.\
+            1593600567075.8; \
+            _csrf=1fdb10ad459e11ad235a622923b30afc3e86291f0cc854ac66f413388c357139; \
+            mojo-trace-id=1; mojo-session-id=\
+            {"id":"d8f1475355b34acba5b36902ac250b97","time":1593600563778}; \
+            Hm_lpvt_703e94591e87be68cc8da0da7cbd0be2=1593600565; \
+            _lxsdk_s=17309fee384-b8-4c0-1de%7C%7C2'
     }
-    home_url = 'https://maoyan.com{}'
-    list_url = home_url.format('/films?showType=3')
-    movie_infos = []
-    
-    list_page = get_page(list_url, header)
-    movie_urls = get_movie_url(list_page)
-    for url in movie_urls:
-        movie_page = get_page(home_url.format(url), header)
-        movie_info = get_movie_info(movie_page)
-        movie_infos.append(movie_info)
-    
-    movies = pd.DataFrame(data=movie_infos, columns=['片名', '上映日期', '类型'])
-    movies.to_csv('./week01/maoyanmovie_bs/maoyantop10.csv', encoding='utf-8', index=False,)
+    host = 'https://maoyan.com'
+    url = '{}/films?showType=3'.format(host)
+    csv_path = './week01/maoyanmovie_bs/maoyantop10.csv'
+    maoyan_movie = MaoyanMovie(host=host, start_url=url, header=header,)
+    maoyan_movie.save(csv_path)
+
