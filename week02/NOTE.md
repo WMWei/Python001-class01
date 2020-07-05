@@ -1,12 +1,24 @@
 # Week02学习笔记
 
-## 额
+## 1 week02笔记
 
-## 第一次社群分享笔记
+本周学习内容：
+
+- 异常处理
+- mySQL数据库连接与数据存储
+- 反反爬虫：
+  - 模拟请求头
+  - POST请求和cookies验证
+  - Selenium模拟浏览器行为
+  - tesserct-ocr图片验证码识别
+  - 代理IP和Scrapy爬虫中间件
+- 分布式爬虫
+
+## 2 第一次社群分享笔记
 
 > Scrapy使用经验分享
 
-### .1 Scrapy常用命令
+### 2.1 Scrapy常用命令
 
 - [官方Scrapy命令参考文档](https://docs.scrapy.org/en/latest/topics/commands.html#available-tool-commands)
 - 查看Scrapy帮助：`> scrapy [command] --help`  
@@ -54,12 +66,12 @@
 - `edit`：`scrapy edit <spidername>`，使用编辑器打开spider，依赖于`EDITOR`设置
 - `bench`：`scrapy bench`，基准测试，生成本地HTTP服务器并以最大可能的速度爬取，用于测试Scrapy在本地PC的性能
 
-### .2 Scrapy爬虫经验分享
+### 2.2 Scrapy爬虫经验分享
 
 1. 不建议直接从开发者工具中复制xpath路径
 2. 在测试xpath或者css选择器时，一定要检查网页源码和开发者工具中的Elements页面是否一致（Elements页面是经过浏览器渲染的，而我们直接爬取的是源码）
 
-### .3 其他tips
+### 2.3 其他tips
 
 - Scrapy新手练习网站：Scrapy文档使用的爬取网站，[http://toscrape.com/](http://toscrape.com/)，提供虚拟数据供新手练习；  
 - 启动Scrapy的两种方式：
