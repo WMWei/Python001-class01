@@ -118,3 +118,6 @@ dmypy.json
 .vscode/
 launch.json
 settings.json
+
+# other
+遗留.md 
