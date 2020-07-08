@@ -12,25 +12,31 @@ from scrapy.downloadermiddlewares.httpproxy import HttpProxyMiddleware
 from scrapy.exceptions import NotConfigured
 from collections import defaultdict
 from urllib.parse import urlparse
-import random
+from random import choice
 
 
 class RandomHttpProxyMiddleware:
 
-    def __init__(self):
-        self.proxies = [
-            'http://52.179.231.206:80',
-            'http://95.0.194.241:9090',
-        ]
-        self.user_agent = [
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.106 Safari/537.36',
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.140 Safari/537.36 Edge/18.17763'
-        ]
-
-    def process_request(self, request, spider):
-        request.meta['proxy'] = random.choice(self.proxies)
-        request.headers['User-Agent'] = random.choice(self.user_agent)
-        print(request.headers)
+    def __init__(self, auth_encoding='utf-8', proxy_list=None):
+        self.auth_encoding = auth_encoding
+        self.proxies = defaultdict(list)
+        for proxy in proxy_list:
+            scheme = urlparse(proxy).scheme
+            self.proxies[scheme].append(proxy)
+    
+    # 启动下载器时调用类方法，读取设置项
+    @classmethod
+    def from_crawler(cls, crawler):
+        if not crawler.settings.get('HTTP_PROXY_LIST'):
+            raise NotConfigured
+        proxy_list = crawler.settings.get('HTTP_PROXY_LIST')
+        auth_encoding = crawler.settings.get('HTTPPROXY_AUTH_ENCODING', 'utf-8')
+        return cls(auth_encoding, proxy_list)
+    
+    # 自定义_set_proxy设置代理
+    def _set_proxy(self, request, scheme):
+        proxy = choice(self.proxies[scheme])
+        request.meta['proxy'] = proxy
 
 
 class Maoyantop102SpiderMiddleware:
