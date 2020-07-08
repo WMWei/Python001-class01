@@ -27,9 +27,9 @@ class RandomHttpProxyMiddleware:
     # 启动下载器时调用类方法，读取设置项
     @classmethod
     def from_crawler(cls, crawler):
-        if not crawler.settings.get('HTTP_PROXY_LIST'):
+        if not crawler.settings.get('HTTPS_PROXY_LIST'):
             raise NotConfigured
-        proxy_list = crawler.settings.get('HTTP_PROXY_LIST')
+        proxy_list = crawler.settings.get('HTTPS_PROXY_LIST')
         auth_encoding = crawler.settings.get('HTTPPROXY_AUTH_ENCODING', 'utf-8')
         return cls(auth_encoding, proxy_list)
     

@@ -125,9 +125,10 @@ MYSQL_PSW = '123456'
 MYSQL_CHARSET='utf8mb4'
 # CUSTOM SETTINGS
 # PROXIES
-HTTP_PROXY_LIST = [
-    'http://52.179.231.206:80',
-    'http://95.0.194.241:9090',
+HTTPS_PROXY_LIST = [
+    'https://183.141.63.219:4236',
+    'https://221.1.124.51:4284',
+    'https://125.86.166.232:4237',
 ]
 # LOG SETTINGS
 import time
