@@ -1,18 +1,135 @@
 # Week02学习笔记
 
-## 1 week02笔记
+## 1 week02知识点
 
-本周学习内容：
+### 1.1 异常处理
 
-- 异常处理
-- mySQL数据库连接与数据存储
-- 反反爬虫：
-  - 模拟请求头
-  - POST请求和cookies验证
-  - Selenium模拟浏览器行为
-  - tesserct-ocr图片验证码识别
-  - 代理IP和Scrapy爬虫中间件
-- 分布式爬虫
+- 一般异常处理：
+  - `try ... except ... finally`语句捕获和处理异常
+  - `raise`抛出异常
+  - 自定义异常类总是继承自`Exception`类及其子类
+- Scrapy的异常处理：
+  - 一样可以通过`try ... except ... finally`捕获
+  - 可以使用`scrapy.logger.error()`将捕获的异常信息记录到日志
+  - 对下载器，可以通过`errback`参数调用异常回调函数来处理异常
+
+### 1.2 MySQL数据库连接
+
+- 使用模块`pymysql`
+- 步骤：
+  1. 创建数据库连接：`pymysql.connect(host=hostport=port,user=user,password=psw,db=db,charset=charset,)`
+  2. 创建游标：`conn.cursor()`，需要利用游标操作数据库
+  3. 执行SQL：`cur.excute(sql, args)`
+  4. 提交事务：`cur.commit()`
+  5. 关闭事务：`cur.close()`
+
+- 在Scrapy中，通过在`pipelines.py`中使用`pymysql`库来将爬取数据存储到数据库
+  - 利用`open_spider()`、`from_crawler()`、`__init__()`处理数据库连接、初始化等问题
+  - 利用`process_item()`进行数据存储
+  - 利用`close_spider()`处理事务提交、数据库关闭等收尾工作
+  - 另外，可以利用`spider.settings.get()`获取`settings.py`中的配置信息
+
+### 1.3 反反爬虫
+
+#### 模拟请求头
+
+利用`fake_useragent.USERAGENT()`模块可以方便的使用随机`USER-AGENT`
+
+#### 使用cookie模拟登陆
+
+- cookie可以维持用户跟服务器的会话状态，经常用于用户登录、身份验证等场景
+- 利用`requests.session()`创建会话之后再进行请求，可以
+  - 重用tcp连接，提高爬虫运行效率
+  - 通过session使用cookie
+- 模拟登陆过程：
+  1. 创建会话
+  2. 发出POST请求
+  3. 获取cookie，利用cookie请求其他登陆后才可获取的页面
+
+#### 使用WebDriver模拟浏览器行为
+
+- 许多页面会使用AJAX技术来加载和渲染，通过`requsets`直接爬取页面，获不到渲染之后的源码
+- 想要获得渲染后的页面源码，两个方法:
+  - 方法一：通过开发者工具分析AJAX请求，找到实际加载目标数据的请求；通过对该URL发出请求得到目标数据；
+  - 方法二：利用WebDriver模拟浏览器行为
+    - 需要工具：
+      - `selenium`模块
+      - 相应浏览器驱动，如Chrome对应的`chromedriver`驱动（需要与浏览器版本匹配）
+    - 步骤：
+      1. 利用`WebDriver`构造driver对象（相当于构造一个浏览器）
+      2. 通过driver对象访问页面，操作元素
+    - 注意点：由于AJAX是异步加载，在请求成功后页面可能还未完全加载完成。为了保证能正确获取目标元素，应该设置等待时间来保证页面加载完全：
+      - 方式一：通过`sleep(30)`设置等待
+      - 方式二：利用`driver.implicitly_wait(30)`设置隐式等待，模块会在遇到要加载的页面时进行等待
+      - 方式三：利用`WebDriverWait()`进行精确的等待设置，如
+
+      ```python
+      WebDriverWait(self.driver, 30).until(
+                EC.presence_of_element_located((
+                    By.XPATH,
+                    "//div[@class='form-wrapper']"
+                )))
+      ```
+
+#### 图形验证码识别
+
+- 使用模块：`pytesseract`、`Pillow`
+- 处理流程：
+  1. 利用`requests`等http库下载验证码图片
+  2. 利用`Pillow`库对图片进行灰度、二值化等处理使得验证码文字部分更加明显
+  3. 利用`pytesseract`库进行识别
+
+### 1.4 Scrapy下载中间件与代理
+
+- 场景：由于网站的反爬虫措施，发起的大量并发请求的同一个IP将被列为风险IP而被封禁，导致爬虫失效
+- 为了避免IP被封禁，可以使用多个IP对目标网站进行访问
+- Scrapy提供下载中间件（DownloadMiddlewares）来处理下载器（Downloader）执行前和执行后的一些操作，其中就包括设置代理IP
+
+#### Scrapy使用系统代理
+
+1. 设置系统代理，如linux下使用`export http://xxx.xxx.xxx.xxx:xxxx`设置系统代理
+2. `settings.py`中启用标准下载中间件的代理中间件（`scrapy.downloadermiddlewares.httpproxy.HttpProxyMiddleware`）来设置代理
+
+#### Scrapy自定义代理中间件
+
+- 项目目录下的`middlewares.py`文件用于自定义各种中间件，包括爬虫中间件、下载中间件、代理中间件
+- 通过继承`HttpProxyMiddleware`中间件，并重写相应的方法，可以自定义代理的设置：
+  1. `settings.py`中启用自定义代理中间件，并配置相应代理列表
+  2. `middlewares.py`中自定义代理中间件类，继承自`HttpProxyMiddleware`类，并根据需要重写相应方法
+    - `from_crawler()`，`__init__()`构造代理中间件
+    - `_get_proxy()`获取代理
+    - `_set_proxy()`，`process_proxy()`设置代理
+- 注意点：只有代理的协议和目标网站可接受协议匹配时，代理才会生效；如网站只使用https协议，那么使用http协议的代理，`process_proxy()`并不会令其生效
+
+### 1.5 分布式爬虫
+
+爬取一些大型网站时，可能因为CPU计算能力不够、或者单机网络带宽不够、或者内存不够等原因，需要多台电脑配合，让Scrapy进行多机通信。
+
+Scrapy原生不支持分布式爬虫，需要Redis实现队列和管道共享。`scrapy-redis`包提供了Scrapy和Redis的集成：
+
+- 将Scrapy的`Spider`类替换成`RedisSpider`
+- 使用redis实现调度器的队列
+- 使用redis实现item pipeline
+
+具体实现：
+
+- 依然使用Scrapy建立和编写项目
+- 在`settings.py`配置替换的组件
+
+  ```shell
+  # Scheduler的QUEUE
+  SCHEDULER = 'scrapy_redis.scheduler.Scheduler'
+  # 去重
+  DUPEFILTER_CLASS = 'scrapy_redis.dupefilter.RFPDupeFilter'
+  # Requests的默认优先级队列
+  SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.PriorityQueue'
+  # 将Requests队列持久化到Redis，可支持暂停或重启爬虫
+  SCHEDULER_PERSIST = True
+  # 将爬取到的items保存到Redis
+  ITEM_PIPELINES = {
+    'scrapy_redis.pipelines.RedisPipeline': 300
+  }
+  ```
 
 ## 2 第一次社群分享笔记
 
