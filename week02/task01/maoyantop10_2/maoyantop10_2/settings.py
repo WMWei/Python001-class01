@@ -6,7 +6,6 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-from fake_useragent import UserAgent
 
 
 BOT_NAME = 'maoyantop10_2'
@@ -18,7 +17,7 @@ NEWSPIDER_MODULE = 'maoyantop10_2.spiders'
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'maoyantop10_2 (+http://www.yourdomain.com)'
 # 设置多个UA
-USER_AGENT = UserAgent().random
+
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
