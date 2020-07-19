@@ -1,6 +1,7 @@
 import subprocess
 import socket
 import re
+import locale
 from multiprocessing import Lock
 
 
@@ -19,8 +20,8 @@ def ip_scanner(ip: str,) -> str:
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     shell=True)
-    # windows平台下解码cp936
-    output = res.stdout.read().decode('cp936')
+
+    output = res.stdout.read().decode(locale.getpreferredencoding(False))
     if not reg.findall(output,):
         with print_lock:
             print(f'#{ip} 可用')

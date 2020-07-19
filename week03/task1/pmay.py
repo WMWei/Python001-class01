@@ -68,22 +68,23 @@ def main():
     start = time.time()
     # 样例数据
     # 实际使用可以直接使用args = command_parse()从命令行获取
-    temp = [
-        # "-n", 
-        # "16",
-        "-f",
-        "tcp",
-        "-ip",
-        "127.0.0.1-127.0.0.5",
-        "-v",
-        "-m",
-        "proc",
-        "-w",
-        "port_by_proc.json",
-        "-p",
-        "100-150"
-    ]
-    args = command_parse(temp)
+    args = command_parse()
+    # temp = [
+    #     # "-n", 
+    #     # "16",
+    #     "-f",
+    #     "tcp",
+    #     "-ip",
+    #     "127.0.0.1-127.0.0.5",
+    #     "-v",
+    #     "-m",
+    #     "proc",
+    #     "-w",
+    #     "port_by_proc.json",
+    #     "-p",
+    #     "100-150"
+    # ]
+    # args = command_parse(temp)
     host_ports = ip_port_parse(args.ip,
                               args.p,
                               is_port=(args.f==PORT_SCANNER))

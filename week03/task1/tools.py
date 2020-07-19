@@ -32,7 +32,7 @@ def command_parse(*args, **kwargs) -> 'argparse.Namespace':
     parser.add_argument('-p',
                         type=str,
                         nargs='*',
-                        default='1-1024',
+                        default=['1-1024',],
                         help='-p <port1, port2, ...> | <port1-port2>, 指定port列表')
     parser.add_argument('-n',
                         type=int,
@@ -140,10 +140,5 @@ def save_as_json(obj: 'Any', fp: str):
         except Exception as e:
             print(f'保存文件至{checked_fp}失败，失败原因：{e}')
     
-
-
-if __name__ == '__main__':
-    s = port_parse(None)
-    print(s)
 
 
