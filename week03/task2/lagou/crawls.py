@@ -9,33 +9,7 @@ import settings
 import tools 
 
 
-# 获取会话
-def get_session(retry_times: int=0):
-    if retry_times > settings.RETRY_TIMES:
-        tools.lock_print(
-            f'>>> <error>: '
-            f'访问次数{settings.HOME_URL}超过{settings.RETRY_TIMES}次，'
-            f'获取cookies失败！')
-        return None, None
-    else:
-        try:
-            tools.lock_print(f'>>> 尝试访问{settings.HOME_URL}获得cookies')
-            # 由于settings.HOME_HEADERS和settings.SEARCH_HEADERS使用了fake_useragent，这里重新赋值以确保在子线程中固定值
-            home_headers = settings.HOME_HEADERS
-            search_headers = settings.SEARCH_HEADERS
-            session = requests.Session()
-            session.get(settings.HOME_URL, headers=home_headers)
-            return session, search_headers
-        except Exception as e:
-            tools.lock_print(
-                f'>>> <error>: '
-                f'尝试访问{settings.HOME_URL}获取cookies失败，将重试'
-                f'\n- 错误信息: {e}')
-            time.sleep(settings.REQUEST_GAP)
-            return get_session(retry_times + 1)
-
-
-# 生产url
+# --------生产url--------
 class ShedulerThread(Thread):
     def __init__(self, 
                 urls_queue: Queue):
@@ -59,7 +33,6 @@ class ShedulerThread(Thread):
                 break
         tools.lock_print(f'>>> 生产url线程线程<{self.name}>结束')
 
-    # ---------生产url---------
     def gen_urls(self):
         page_no = 11
         while page_no <= settings.MAX_PAGE:
@@ -79,52 +52,59 @@ class ShedulerThread(Thread):
             page_no += 1
 
 
-# 下载器线程
+# --------下载器线程--------
 class RequestThread(Thread):
     def __init__(self,
-                session: requests.Session,
-                headers: dict,
-                urls_queue: PriorityQueue,
+                # session: requests.Session,
+                # headers: dict,
+                urls_queue: Queue,
                 page_queue: Queue):
         super().__init__()
-        self.session = session
-        self.headers = headers
+        self.session = None
+        self.headers = None
         self.urls_queue = urls_queue
         self.page_queue = page_queue
         print(f'>>> 创建页面请求线程<{self.name}>')
 
     def run(self):
         tools.lock_print(f'>>> 启动页面请求线程<{self.name}>')
-        while True:
-            try:
-                urls_info = self.urls_queue.get()
-                # 有可能存在所有页面数据不够需求数量
-                if urls_info is None:
-                    break
-                retry_times = urls_info['retry_times']
-                url = urls_info['url']
-                city = urls_info['city']
-                break_flag = self.request(url, city, retry_times)
-                # 全部收集完成，则退出
-                if break_flag == 1:
-                    break
-                # 相应城市收集完，则跳过
-                if break_flag == 2:
-                    continue
-            except Exception as e:
-                tools.lock_print(
-                    f'<{self.name}>:'
-                    f'\n- <error>: 请求页面{url}失败，后续将重试'
-                    f'\n- <error>: {e}')
-                if retry_times <= settings.RETRY_TIMES:
-                    self.urls_queue.put({'url': url,
-                                        'city': city,
-                                        'retry_times': retry_times + 1})
-            finally:
-                self.urls_queue.task_done()
+        # 获取会话并判断是否成功
+        if not self.get_session():
+            tools.lock_print(f'<{self.name}>:\n- 获取会话失败，将退出线程')
+        else:
+            while True:
+                try:
+                    urls_info = self.urls_queue.get()
+                    # 有可能存在所有页面数据不够需求数量
+                    if urls_info is None:
+                        break
+                    retry_times = urls_info['retry_times']
+                    url = urls_info['url']
+                    city = urls_info['city']
+                    break_flag = self.request(url, city, retry_times)
+                    # 全部收集完成，则退出
+                    if break_flag == 1:
+                        break
+                    # 相应城市收集完，则跳过
+                    if break_flag == 2:
+                        continue
+                except Exception as e:
+                    tools.lock_print(
+                        f'<{self.name}>:'
+                        f'\n- <error>: 请求页面{url}失败，后续将重试'
+                        f'\n- <error>: {e}')
+                    if retry_times <= settings.RETRY_TIMES:
+                        self.urls_queue.put({
+                            'url': url,
+                            'city': city,
+                            'retry_times': retry_times + 1})
+                finally:
+                    self.urls_queue.task_done()
+        # 最终关闭会话
+        self.session.close()
         tools.lock_print(f'>>> 页面请求线程<{self.name}>结束')
 
-    def request(self, url, city, retry_times):
+    def request(self, url: str, city: str, retry_times: int):
         if tools.check_db_position_count():
             return 1
         if tools.check_db_position_count(city):
@@ -157,11 +137,36 @@ class RequestThread(Thread):
         return 0
 
     def change_cookie(self):
-        session, headers = get_session()
-        if session:
-            self.session = session
-            self.headers = headers
+        old_session = self.session
+        # 如果获取成功
+        if self.get_session():
+            # 关闭当前会话
+            old_session.close()
 
+    # 获取会话
+    def get_session(self, retry_times: int=0):
+        if retry_times > settings.RETRY_TIMES:
+            tools.lock_print(
+                f'<{self.name}>: \n- <error>: '
+                f'访问次数{settings.HOME_URL}超过{settings.RETRY_TIMES}次，'
+                f'获取cookies失败！')
+            return False
+        else:
+            try:
+                tools.lock_print(f'>>> 尝试访问{settings.HOME_URL}获得cookies')
+                # 由于settings.HOME_HEADERS和settings.SEARCH_HEADERS使用了fake_useragent，这里重新赋值以确保在子线程中固定值
+                home_headers = settings.HOME_HEADERS
+                self.headers = settings.SEARCH_HEADERS
+                self.session = requests.Session()
+                self.session.get(settings.HOME_URL, headers=home_headers)
+                return True
+            except Exception as e:
+                tools.lock_print(
+                    f'>>> <error>: '
+                    f'尝试访问{settings.HOME_URL}获取cookies失败，将重试'
+                    f'\n- 错误信息: {e}')
+                time.sleep(settings.REQUEST_GAP)
+                return self.get_session(retry_times + 1)
 
 class ParserThread(Thread):
     def __init__(self,

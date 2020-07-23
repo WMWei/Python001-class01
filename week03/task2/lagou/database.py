@@ -80,8 +80,8 @@ class MongoThread(Thread):
         if not res.matched_count == 1:
             # print(f'<{self.name}>: \n- 插入记录{position_info}到数据库中')
             tools.db_position_count.update([position_info['city']])
-            tools.lock_print(f'<{self.name}>:\n- '
-                            f'当前累计数量：{tools.db_position_count}')
+            # tools.lock_print(f'<{self.name}>:\n- '
+                            # f'当前累计数量：{tools.db_position_count}')
         return 0
 
 

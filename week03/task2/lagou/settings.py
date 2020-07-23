@@ -51,6 +51,14 @@ SEARCH_HEADERS = {
     'User-Agent': USER_AGENT,
     'X-Requested-With': 'XMLHttpRequest',
 }
+
+# proxies = {
+#     'https://183.141.63.219:4236',
+#     'https://221.1.124.51:4284',
+#     'https://125.86.166.232:4237',
+#   'http': 'http://10.10.1.10:3128',
+#   'https': 'http://10.10.1.10:1080',
+# }
 # 重试次数
 RETRY_TIMES = 3
 # 请求间隔
