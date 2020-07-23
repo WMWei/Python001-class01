@@ -1,6 +1,6 @@
 from threading import Thread, Event
-from queue import Queue
-# from urllib.parse import parse_qs
+from queue import Queue, PriorityQueue
+from urllib.parse import unquote_plus
 import time
 
 import requests
@@ -12,11 +12,14 @@ import tools
 # 获取会话
 def get_session(retry_times: int=0):
     if retry_times > settings.RETRY_TIMES:
-        print(f'>>> 重新访问次数{settings.HOME_URL}超过{settings.RETRY_TIMES}次，获取cookies失败！')
+        tools.lock_print(
+            f'>>> <error>: '
+            f'访问次数{settings.HOME_URL}超过{settings.RETRY_TIMES}次，'
+            f'获取cookies失败！')
         return None, None
     else:
         try:
-            print(f'>>> 尝试访问{settings.HOME_URL}获得cookies')
+            tools.lock_print(f'>>> 尝试访问{settings.HOME_URL}获得cookies')
             # 由于settings.HOME_HEADERS和settings.SEARCH_HEADERS使用了fake_useragent，这里重新赋值以确保在子线程中固定值
             home_headers = settings.HOME_HEADERS
             search_headers = settings.SEARCH_HEADERS
@@ -24,9 +27,56 @@ def get_session(retry_times: int=0):
             session.get(settings.HOME_URL, headers=home_headers)
             return session, search_headers
         except Exception as e:
-            print(f'>>> 尝试访问{settings.HOME_URL}获取cookies失败，将重试')
+            tools.lock_print(
+                f'>>> <error>: '
+                f'尝试访问{settings.HOME_URL}获取cookies失败，将重试'
+                f'\n- 错误信息: {e}')
             time.sleep(settings.REQUEST_GAP)
             return get_session(retry_times + 1)
+
+
+# 生产url
+class ShedulerThread(Thread):
+    def __init__(self, 
+                urls_queue: Queue):
+        super().__init__()
+        self.urls_queue = urls_queue
+        self.urls_info = self.gen_urls()
+        print(f'>>> 创建生产url线程<{self.name}>')
+    
+    def run(self):
+        tools.lock_print(f'>>> 启动生产url线程<{self.name}>')
+        for urls_info in self.urls_info:
+            if tools.check_db_position_count():
+                break
+            try:
+                self.urls_queue.put(urls_info)
+            except Exception as e:
+                tools.lock_print(
+                    f'<{self.name}>:'
+                    f'\n- <error>: 生产url出错，将退出生产线程'
+                    f'\n- <error>: {e}')
+                break
+        tools.lock_print(f'>>> 生产url线程线程<{self.name}>结束')
+
+    # ---------生产url---------
+    def gen_urls(self):
+        page_no = 11
+        while page_no <= settings.MAX_PAGE:
+            for city in settings.CITIES:
+                params = {
+                    'city': city,
+                    'positionName': settings.POSITION,
+                    'pageNo': page_no,
+                    'pageSize': settings.PAGE_SIZE,
+                }
+                full_url = (settings.SEARCH_URL + '?' +
+                            '&'.join(f'{k}={v}' for k, v in params.items()))
+                tools.lock_print(f'<{self.name}>:\n- 生成url：{full_url}')
+                yield {'url': full_url,
+                           'city': city,
+                           'retry_times': 0}
+            page_no += 1
 
 
 # 下载器线程
@@ -34,60 +84,77 @@ class RequestThread(Thread):
     def __init__(self,
                 session: requests.Session,
                 headers: dict,
-                urls_queue: Queue,
+                urls_queue: PriorityQueue,
                 page_queue: Queue):
         super().__init__()
         self.session = session
         self.headers = headers
         self.urls_queue = urls_queue
         self.page_queue = page_queue
-        print(f'>>> 创建页面请求进程<{self.name}>')
+        print(f'>>> 创建页面请求线程<{self.name}>')
 
     def run(self):
-        print(f'>>> 启动页面请求进程<{self.name}>')
-        while not tools.check_position_count():
-            if self.urls_queue.empty():
-                break
+        tools.lock_print(f'>>> 启动页面请求线程<{self.name}>')
+        while True:
             try:
                 urls_info = self.urls_queue.get()
+                # 有可能存在所有页面数据不够需求数量
+                if urls_info is None:
+                    break
                 retry_times = urls_info['retry_times']
                 url = urls_info['url']
                 city = urls_info['city']
-                if tools.check_position_count(city):
+                break_flag = self.request(url, city, retry_times)
+                # 全部收集完成，则退出
+                if break_flag == 1:
+                    break
+                # 相应城市收集完，则跳过
+                if break_flag == 2:
                     continue
-                self.request(url, city, retry_times)
             except Exception as e:
-                print(f'''<{self.name}>: 请求页面{url}失败，将在后续进行重试！
-                错误信息: {e}''')
-                
+                tools.lock_print(
+                    f'<{self.name}>:'
+                    f'\n- <error>: 请求页面{url}失败，后续将重试'
+                    f'\n- <error>: {e}')
                 if retry_times <= settings.RETRY_TIMES:
                     self.urls_queue.put({'url': url,
                                         'city': city,
                                         'retry_times': retry_times + 1})
             finally:
                 self.urls_queue.task_done()
-        print(f'>>> 页面请求进程<{self.name}>结束')
+        tools.lock_print(f'>>> 页面请求线程<{self.name}>结束')
 
     def request(self, url, city, retry_times):
+        if tools.check_db_position_count():
+            return 1
+        if tools.check_db_position_count(city):
+            return 2
         if retry_times <= settings.RETRY_TIMES:
-            print(f'<{self.name}>: 开始下载{url}...')
-            content = self.session.get(url=url,
-                                      headers=self.headers,
-                                      cookies=self.session.cookies,)
+            tools.lock_print(f'<{self.name}>: \n- 开始下载{url}...')
+            content = self.session.get(
+                url=url,
+                headers=self.headers,
+                cookies=self.session.cookies,)
             # 适当降低频率
             time.sleep(settings.REQUEST_GAP)
             if content.json()['state'] == 1:
-                print(f'<{self.name}>: 页面{url}下载完成！')
-                self.page_queue.put({'page': content, 
-                                    'city': city,})
+                tools.lock_print(f'<{self.name}>: \n- 页面{url}下载完成！')
+                self.page_queue.put(content)
             else:
-                print(f'<{self.name}>: 未获取到目标页面{url}，正在更换cookies重试')
+                tools.lock_print(
+                    f'<{self.name}>: '
+                    f'\n- 未获取到目标页面{url}，正在更换cookies重试')
                 self.change_cookie()
-                self.urls_queue.put({'url': page.request.url,
-                                    'city': page_info['city'],
-                                    'retry_times': retry_times + 1})
+                self.urls_queue.put((0, {
+                    'url': unquote_plus(content.request.url),
+                    'city': city,
+                    'retry_times': retry_times + 1}))
         else:
-            print(f'<{self.name}>: 重复请求{url}超过{settings.RETRY_TIMES}次，放弃该页面。')
+            tools.lock_print(
+                f'<{self.name}>:'
+                f'\n- <error>: 重复请求{url}超过{settings.RETRY_TIMES}次，'
+                f'放弃该页面')
+        return 0
 
     def change_cookie(self):
         session, headers = get_session()
@@ -103,58 +170,49 @@ class ParserThread(Thread):
         super().__init__()
         self.page_queue = page_queue
         self.data_queue = data_queue
-        # self.urls_queue = urls_queue
-        # self._stop_event = Event()
-        print(f'>>> 创建页面解析进程<{self.name}>')
+
+        print(f'>>> 创建页面解析线程<{self.name}>')
 
     def run(self):
-        print(f'>>> 启动页面解析进程<{self.name}>')
+        tools.lock_print(f'>>> 启动页面解析线程<{self.name}>')
         # 当收集数据未达到目标值时，执行循环
-        while not tools.check_position_count():
+        while True:
             try:
                 page_info = self.page_queue.get()
-                if tools.check_position_count(page_info['city']):
+                # 有可能存在所有页面数据不够需求数量
+                if page_info is None:
+                    break
+                break_flag = self.parser(page_info)
+                # 全部收集完成，则退出
+                if break_flag == 1:
+                    break
+                # 当前城市收集完成，则跳过
+                if break_flag == 2:
                     continue
-                self.parser(page_info['page'])
             except Exception as e:
-                print(f'<{self.name}>: 解析页出错：{e}')
+                tools.lock_print(f'<{self.name}>: \n- 解析页面出错: {e}')
             finally:
                 self.page_queue.task_done()
-        print(f'>>> 页面解析进程<{self.name}>结束')
+        tools.lock_print(f'>>> 页面解析线程<{self.name}>结束')
 
     def parser(self, content):
+        if tools.check_db_position_count():
+            return 1
         json_page = content.json()
-        # 得到目标页面content.data.page
-        print(f'<{self.name}>: 解析页面{content.request.url}')
+
+        city = json_page['content']['data']['custom']['city']
+        if tools.check_db_position_count(city):
+            return 2
+        
+        tools.lock_print(f'<{self.name}>: \n- 解析页面{unquote_plus(content.request.url)}')
         infos = json_page['content']['data']['page']['result']
+
         for info_tag in infos:
             position_info = {
-                'position_id': info_tag['positionId'], 
                 'position_name': info_tag['positionName'],
                 'city': info_tag['city'],
-                'created': info_tag['createTime'],
                 'salary': info_tag['salary'],
-                'company_id': info_tag['companyId'],
-                'company': info_tag['companyName'],
-                'company_full_name': info_tag['companyFullName'],
             }
+        
             self.data_queue.put(position_info)
-        # else:
-        #     print(f'<{self.name}>: 未获取到目标页面，{page.request.url}解析失败，将在后续重新下载！')
-        #     if retry_times <= settings.RETRY_TIMES:
-        #         retry_times += 1
-        #         self.urls_queue.put({'url': page.request.url,
-        #                             'city': page_info['city'],
-        #                             'retry_times': retry_times})
-    
-    # def stop(self):
-    #     self._stop_event.set()
-
-    # def stopped(self):
-    #     return self._stop_event.is_set()
-
-
-# if __name__ == '__main__':
-#     x = settings.USER_AGENT
-#     y = settings.USER_AGENT
-#     print(f'{x},\n{y}')
+        return 0

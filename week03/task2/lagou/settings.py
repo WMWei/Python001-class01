@@ -1,20 +1,20 @@
 # ---查询信息配置---
 # 目标城市
 CITIES = [
-    # '北京',
+    '北京',
     # '上海',
     # '广州',
     # '深圳',
-    '杭州',
+    # '杭州',
     ]
 # 爬取目标职位
 POSITION = 'python工程师'
-# 页面希纳是数量
+# 页面展示是数量
 PAGE_SIZE = 15  # 默认值是15，试过修改该值，但是不生效
 # 每个地区最大页数
-MAX_PAGE = 2
-# 爬取记录数量
-POSITION_COUNT = 20
+MAX_PAGE = 12
+# 每个城市爬取记录数量
+POSITION_COUNT = 100
 
 
 # ---请求配置---
@@ -55,11 +55,11 @@ SEARCH_HEADERS = {
 RETRY_TIMES = 3
 # 请求间隔
 from random import randint
-REQUEST_GAP = randint(5, 10)
+REQUEST_GAP = randint(3, 5)
 
 
 # ---并发配置---
-MAX_CONCURRENT = 2
+MAX_CONCURRENT = 4
 
 
 # ---数据库配置---
