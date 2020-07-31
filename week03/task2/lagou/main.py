@@ -18,19 +18,17 @@ def run_spider():
     # 创建生产url线程
     sheduler_thread = crawls.ShedulerThread(urls_queue)
 
-    # # 创建session
-    # session, search_headers = crawls.get_session()
-    # if session:
-    request_threads = [crawls.RequestThread(#session,
-                                            #search_headers,
-                                            urls_queue,
-                                            page_queue)
+    # 创建请求线程
+    request_threads = [crawls.RequestThread(urls_queue, page_queue)
                       for c in range(settings.MAX_CONCURRENT)]
+    # 创建解析线程
     parser_threads = [crawls.ParserThread(page_queue, data_queue)
                       for c in range(settings.MAX_CONCURRENT)]
 
+    # 连接数据库
     db_conn = database.connect_mongo()
     if db_conn:
+        # 创建数据库存储线程
         db_threads = [database.MongoThread(db_conn, data_queue)
                       for c in range(settings.MAX_CONCURRENT)]
 
@@ -53,18 +51,18 @@ def run_spider():
 
         # 等待队列输出
         urls_queue.join()
-        page_queue.join()
-        data_queue.join()
         # 输入队列结束标记
         for r in request_threads:
             urls_queue.put(None)
+        page_queue.join()
         for p in parser_threads:
             page_queue.put(None)
+        data_queue.join()
         for d in db_threads:
             data_queue.put(None)
 
         for r in request_threads:
-                r.join()
+            r.join()
         for p in parser_threads:
             p.join()
         for d in db_threads:

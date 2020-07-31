@@ -34,7 +34,7 @@ class ShedulerThread(Thread):
         tools.lock_print(f'>>> 生产url线程线程<{self.name}>结束')
 
     def gen_urls(self):
-        page_no = 11
+        page_no = 1
         while page_no <= settings.MAX_PAGE:
             for city in settings.CITIES:
                 params = {
@@ -114,7 +114,9 @@ class RequestThread(Thread):
             content = self.session.get(
                 url=url,
                 headers=self.headers,
-                cookies=self.session.cookies,)
+                cookies=self.session.cookies,
+                # proxies=settings.PROXY
+                )
             # 适当降低频率
             time.sleep(settings.REQUEST_GAP)
             if content.json()['state'] == 1:

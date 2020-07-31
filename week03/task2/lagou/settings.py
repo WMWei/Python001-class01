@@ -2,13 +2,13 @@
 # 目标城市
 CITIES = [
     '北京',
-    # '上海',
-    # '广州',
-    # '深圳',
+    '上海',
+    '广州',
+    '深圳',
     # '杭州',
     ]
 # 爬取目标职位
-POSITION = 'python工程师'
+POSITION = 'python'
 # 页面展示是数量
 PAGE_SIZE = 15  # 默认值是15，试过修改该值，但是不生效
 # 每个地区最大页数
@@ -27,7 +27,7 @@ HOST = 'm.lagou.com'
 # 请求头配置
 from fake_useragent import UserAgent
 
-USER_AGENT = UserAgent().random
+USER_AGENT = UserAgent(verify_ssl=False).random
 # USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0'
 HOME_HEADERS = {
     'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -52,18 +52,20 @@ SEARCH_HEADERS = {
     'X-Requested-With': 'XMLHttpRequest',
 }
 
-# proxies = {
-#     'https://183.141.63.219:4236',
-#     'https://221.1.124.51:4284',
-#     'https://125.86.166.232:4237',
-#   'http': 'http://10.10.1.10:3128',
-#   'https': 'http://10.10.1.10:1080',
-# }
+# 代理
+import random
+proxies = [
+    {'https': 'https://183.141.63.219:4236',},
+    {'https': 'https://221.1.124.51:4284',},
+    {'https': 'https://125.86.166.232:4237',},
+]
+PROXY = random.choice(proxies)
+
 # 重试次数
 RETRY_TIMES = 3
 # 请求间隔
 from random import randint
-REQUEST_GAP = randint(3, 5)
+REQUEST_GAP = randint(2, 5)
 
 
 # ---并发配置---
