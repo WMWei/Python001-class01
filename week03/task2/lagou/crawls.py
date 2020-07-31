@@ -77,7 +77,7 @@ class RequestThread(Thread):
         # 获取会话并判断是否成功
         if not self.get_session():
             # tools.lock_
-            logger.info(f'<{self.name}>:\n- 获取会话失败，将退出线程')
+            logger.error(f'<{self.name}>:\n- 获取会话失败，将退出线程')
         else:
             while True:
                 try:
@@ -162,7 +162,7 @@ class RequestThread(Thread):
     def get_session(self, retry_times: int=0):
         if retry_times > settings.RETRY_TIMES:
             # tools.lock_
-            logger.info(
+            logger.error(
                 f'<{self.name}>: \n- '
                 f'访问次数 {settings.HOME_URL} 超过{settings.RETRY_TIMES}次，'
                 f'获取cookies失败！')
