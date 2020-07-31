@@ -5,36 +5,38 @@ import pymongo
 
 import settings
 import tools 
+from mylog import logger
 
 
 # MONGODB数据库连接
 def connect_mongo():
     try:
-        print('>>> 正在连接数据库...')
+        logger.info('正在连接数据库...')
         client = pymongo.MongoClient(host=settings.MONGODB_HOST,
-                                    port=settings.MONGODB_PORT,
-                                    username=settings.MONGODB_USER,
-                                    password=settings.MONGODB_PSW,
-                                    authSource=settings.MONGODB_DB,
+                                     port=settings.MONGODB_PORT,
+                                     username=settings.MONGODB_USER,
+                                     password=settings.MONGODB_PSW,
+                                     authSource=settings.MONGODB_DB,
                                     )
-        print('>>> 数据库连接成功!')
+        logger.info('数据库连接成功!')
         return client
     except Exception as e:
-        print(f'>>> <error>: 数据库连接失败! \n- 错误信息: {e}')
+        logger.error(f'数据库连接失败! \n- 错误信息: {e}')
         return None
 
 
 class MongoThread(Thread):
     def __init__(self,
-                client: 'pymongo.MongoClient',
-                data_queue: Queue):
+                 client: 'pymongo.MongoClient',
+                 data_queue: Queue):
         super().__init__()
         self.post = client[settings.MONGODB_DB][settings.MONGODB_COLNAME]
         self.data_queue = data_queue
-        print(f'>>> 创建数据库写入线程<{self.name}>')
+        logger.info(f'创建数据库写入线程<{self.name}>')
 
     def run(self):
-        tools.lock_print(f'>>> 启动数据库写入线程<{self.name}>')
+        # tools.lock_
+        logger.info(f'启动数据库写入线程<{self.name}>')
         while True:
             try:
                 position_info = self.data_queue.get()
@@ -51,10 +53,13 @@ class MongoThread(Thread):
                         continue
                 
             except Exception as e:
-                print(f'<{self.name}>:\n- <error>: 插入记录{position_info}到数据库失败\n- <error>: {e}')
+                logger.error(f'<{self.name}>:\n'
+                            f'- 插入记录{position_info}到数据库失败\n'
+                            f'- 错误信息: {e}')
             finally:
                 self.data_queue.task_done()
-        tools.lock_print(f'>>> 结束数据库写入线程<{self.name}>')
+        # tools.lock_
+        logger.info(f'结束数据库写入线程<{self.name}>')
 
     def upsert(self, position_info: dict):
         if tools.check_db_position_count():
@@ -78,10 +83,10 @@ class MongoThread(Thread):
             },
             upsert=True)
         if not res.matched_count == 1:
-            # print(f'<{self.name}>: \n- 插入记录{position_info}到数据库中')
+            logger.debug(f'<{self.name}>: \n- 插入记录{position_info}到数据库中')
             tools.db_position_count.update([position_info['city']])
-            # tools.lock_print(f'<{self.name}>:\n- '
-                            # f'当前累计数量：{tools.db_position_count}')
+            logger.debug(f'<{self.name}>:\n- '
+                        f'当前累计数量：{tools.db_position_count}')
         return 0
 
 

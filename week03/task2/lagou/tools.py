@@ -24,6 +24,8 @@ def check_db_position_count(city: str=None) -> bool:
 # ---------锁---------
 # 用于打印
 print_lock = Lock()
+# 用于日志
+log_lock = Lock()
 # 用于在线程中对爬取记录计数的锁
 db_count_lock = Lock()
 parser_count_lock = Lock()

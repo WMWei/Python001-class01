@@ -6,6 +6,8 @@ import database
 import crawls
 import tools
 import settings
+import show
+# from mylog import logger
 
 
 @tools.cost_time
@@ -15,6 +17,7 @@ def run_spider():
     data_queue = Queue(300)
 
     print(f'----开始运行爬虫----')
+
     # 创建生产url线程
     sheduler_thread = crawls.ShedulerThread(urls_queue)
 
@@ -79,6 +82,9 @@ def run_spider():
 
 if __name__ == '__main__':
     run_spider()
+    # 从数据库读取并展示数据直方图
+    # 直接运行show.py也可以获得图象
+    show.salary_show()
 
 
 

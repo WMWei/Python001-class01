@@ -1,3 +1,10 @@
+import random
+import time
+import logging
+
+from fake_useragent import UserAgent
+
+
 # ---查询信息配置---
 # 目标城市
 CITIES = [
@@ -5,7 +12,7 @@ CITIES = [
     '上海',
     '广州',
     '深圳',
-    # '杭州',
+    # '福州',
     ]
 # 爬取目标职位
 POSITION = 'python'
@@ -25,8 +32,6 @@ SEARCH_URL = 'https://m.lagou.com/search.json'
 HOST = 'm.lagou.com'
 
 # 请求头配置
-from fake_useragent import UserAgent
-
 USER_AGENT = UserAgent(verify_ssl=False).random
 # USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:79.0) Gecko/20100101 Firefox/79.0'
 HOME_HEADERS = {
@@ -53,19 +58,17 @@ SEARCH_HEADERS = {
 }
 
 # 代理
-import random
-proxies = [
-    {'https': 'https://183.141.63.219:4236',},
-    {'https': 'https://221.1.124.51:4284',},
-    {'https': 'https://125.86.166.232:4237',},
-]
-PROXY = random.choice(proxies)
+# proxies = [
+#     {'https': 'https://183.141.63.219:4236',},
+#     {'https': 'https://221.1.124.51:4284',},
+#     {'https': 'https://125.86.166.232:4237',},
+# ]
+# PROXY = random.choice(proxies)
 
 # 重试次数
 RETRY_TIMES = 3
 # 请求间隔
-from random import randint
-REQUEST_GAP = randint(2, 5)
+REQUEST_GAP = random.randint(2, 5)
 
 
 # ---并发配置---
@@ -80,3 +83,10 @@ MONGODB_DB = 'ScrapyDemo'
 MONGODB_COLNAME = 'lagou'
 MONGODB_USER = 'wm'
 MONGODB_PSW = '123456'
+
+
+# ---日志---
+LOG_FILE = f'log/{time.strftime("%Y%m%d-%H%M%S")}.log'
+LOG_FORMAT = '[%(asctime)s-%(levelname)s]: %(message)s'
+LOG_DATE_FORMAT = '%m/%d/%Y %H:%M:%S %p'
+LOG_LEVEL = logging.INFO
