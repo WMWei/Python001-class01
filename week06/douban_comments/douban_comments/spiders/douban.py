@@ -24,7 +24,7 @@ class DoubanSpider(scrapy.Spider):
         for link in links:
             item = DoubanMoviesItem()
             item['link'] = link
-            item['douban_id'] = int(link.strip('/').split('/')[-1])
+            item['movie_id'] = int(link.strip('/').split('/')[-1])
             yield scrapy.Request(url=link, 
                                  meta={'item': item}, 
                                  callback=self.item_parse)
@@ -32,7 +32,7 @@ class DoubanSpider(scrapy.Spider):
     def item_parse(self, response):
         movie_item = response.meta['item']
         # 电影名称 str
-        movie_item['name'] = response.xpath(
+        movie_item['movie_name'] = response.xpath(
             '//span[@property="v:itemreviewed"]'
             '/text()'
         ).get()
@@ -87,7 +87,7 @@ class DoubanSpider(scrapy.Spider):
         comments_link = (movie_item['link'] + 
                         'comments?start={}&sort=new_score&status=P')
         item = DoubanCommentsItem()
-        item['douban_id'] = movie_item['douban_id']
+        item['movie_id'] = movie_item['movie_id']
         # 只取十页
         comments_links = (comments_link.format(i * 20) for i in range(1))
         for link in comments_links:

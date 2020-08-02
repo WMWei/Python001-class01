@@ -12,7 +12,7 @@ class DoubanCommentsItem(scrapy.Item):
     # 评论id int
     cid = scrapy.Field()
     # 豆瓣id int
-    douban_id = scrapy.Field()
+    movie_id = scrapy.Field()
     # 用户名 str
     user_name = scrapy.Field()
     # 评价 int
@@ -25,9 +25,9 @@ class DoubanCommentsItem(scrapy.Item):
 
 class DoubanMoviesItem(scrapy.Item):
     # 豆瓣id int
-    douban_id = scrapy.Field()
+    movie_id = scrapy.Field()
     # 电影名称 str
-    name = scrapy.Field()
+    movie_name = scrapy.Field()
     # imdb id str
     imdb_id = scrapy.Field()
     # 上映日期 str
