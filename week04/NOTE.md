@@ -47,8 +47,6 @@ linalg.norm(mm1-mm2, 2)
 # 13
 ```
 
-
-
 ## 1. pandas
 
 `pandas`（pd）是一个基于`NumPy`（np）开发的数据分析库，提供了快速、简捷、易懂的数据结构，简化了数据整理步骤。pandas能更方便的操作大型数据集，很适合用来对爬虫获取的基础进行清洗，获得结构化的数据供数据分析等项目使用。
@@ -163,6 +161,25 @@ df3.drop_duplicates()
 ```
 
 - 数据调整：筛选数据、结构化处理等
+
+```python
+import numpy as np
+
+df3=pd.DataFrame({"A":[5,3,None,4],
+                  "B":[None,2,4,3],
+                  "C":[4,3,8,5],
+                  "D":[5,4,2,None]})
+# 筛选数据
+# 列的选择,多个列要用列表
+df[ ['A', 'C'] ]
+# 某几列
+df.iloc[:, [0, 2]]
+# 行选择
+
+```
+
+
+
 - 数值计算和聚合操作：如count、sum、group等，与数据库的操作类似
 - 多表拼接和关联：类似数据库的join、union等
 
@@ -228,6 +245,7 @@ df3.drop_duplicates()
            linewidth=3,      # 线条宽度
            marker='D',       # 点标记
           )
+  # 需要展示多个图象的话，可以创建多个plt.plot()
   # 展示
   plt.show()
   # 绘制散点图
@@ -237,8 +255,8 @@ df3.drop_duplicates()
   plt.show()
   
   
-  ```
-
+```
+  
   
 
 ## 2. jieba：分词和关键词提取
