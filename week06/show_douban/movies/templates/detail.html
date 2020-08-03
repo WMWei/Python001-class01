@@ -6,9 +6,7 @@
 
     <!-- Page Heading/Breadcrumbs -->
     <h1 class="mt-4 mb-3">
-      <a href="{{ movie.link }}" referrerPolicy="no-referrer">
         {{ movie.movie_name }}
-      </a>
     </h1>
 
     <ol class="breadcrumb">
@@ -20,34 +18,30 @@
       </li>
     </ol>
 
+    <div class="card mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <a href="{{ movie.link }}" referrerPolicy="no-referrer">
+                <img class="img-fluid rounded" src="{{ movie.img_src }}" alt="暂无海报" referrerPolicy="no-referrer">
+              </a>
+            </div>
+            <div class="col-lg-8">
+              <p class="card-text">
+                <span>类型：{{ movie.movie_type }}</span><br />
+                <span>制片国家/地区：{{ movie.area }}</span><br />
+                <span>语言：{{ movie.language }}</span><br />
+                <span>上映日期：{{ movie.release_date }}</span><br />
+                <span>时长：{{ movie.runtime }}</span><br />
+                <span>IMDb：{{ movie.imdb_id }}</span>
+              </p>
+              <p class="lead">{{ movie.indent }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    
     <div class="row">
-
-      <!-- Post Content Column -->
-      <div class="col-lg-8">
-
-        <!-- Preview Image -->
-        <img class="img-fluid rounded" src="{{ movie.img_src }}" alt="暂无海报" referrerPolicy="no-referrer">
-
-        <hr>
-
-        <!-- info -->
-        <p class="card-text">
-          <span>类型：{{ movie.movie_type }}</span><br />
-          <span>制片国家/地区：{{ movie.area }}</span><br />
-          <span>时长：{{ movie.runtime }}</span>
-          <span>上映日期：{{ movie.release_date }}</span><br />
-          <span>时长：{{ movie.runtime }}</span>
-          <span>IMDb：{{ movie.imdb_id }}</span>
-        </p>
-
-
-        <hr>
-
-        <!-- Post Content -->
-        <p class="lead">{{ movie.indent }}</p>
-
-        <hr>
-
         <!-- Comments Form -->
         <!--
         <div class="card my-4">
@@ -63,8 +57,8 @@
         </div>
         -->
 
-        <!-- Single Comment -->
-        {% block comment %}
+      <div class="col-lg-12">
+      {% block comment %}
         {% for c in comments %}
         <div class="media mb-4">
           <!--
@@ -81,7 +75,8 @@
         <hr>
 
         {% endfor %}
-        {% endblock comment %}
+      {% endblock comment %}
+      </div>
 
         <!-- Comment with nested comments -->
         <!--
