@@ -5,9 +5,9 @@ from .models import Comments, Movies
 
 
 def index(request):
-    params = request.content_params
-    start = params.get('start', 0)
-    pagesize = params.get('pagesize', 8)
+    params = request.GET
+    start = int(params.get('start', 0))
+    pagesize = int(params.get('pagesize', 8))
     if start % pagesize != 0:
         start = 0
     movies = Movies.objects.order_by('-rate')[start:start + pagesize]
