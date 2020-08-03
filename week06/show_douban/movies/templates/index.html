@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+<!-- Page Content -->
+{% block content %}
+  <div class="container">
+
+    <!-- Page Heading/Breadcrumbs -->
+    {% block pagehead %}
+    <h1 class="mt-4 mb-3">豆瓣电影
+      <small>Top 250</small>
+    </h1>
+
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'movies:index' %}">电影列表</a>
+      </li>
+      <li class="breadcrumb-item active">第 {{ cur_page_num }} 页</li>
+    </ol>
+    {% endblock pagehead %}
+
+    {% block items %}
+    <!-- Blog Post -->
+    {% for movie in movies %}
+      <div class="card mb-4">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <a href="{% url 'movies:detail' movie.movie_id %}">
+                <img class="img-fluid rounded" src="{{ movie.img_src }}" alt="暂无海报" referrerPolicy="no-referrer">
+              </a>
+            </div>
+            <div class="col-lg-6">
+              <h2 class="card-title">{{ movie.movie_name }}</h2>
+              <p class="card-text">
+                <span>类型：{{ movie.movie_type }}</span><br />
+                <span>语言：{{ movie.language }}</span><br />
+                <span>时长：{{ movie.runtime }}</span>
+              </p>
+              <a href="{% url 'movies:detail' movie.movie_id %}" class="btn btn-primary">查看详情 &rarr;</a>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer text-muted">
+          <span>{{ movie.rate }}分 | </span>
+          <span>{{ movie.rate_count }}人评价</span>
+        </div>
+      </div>
+      {% empty %}
+      <div class="card mb-4">暂无作品</div>
+    {% endfor %}
+    {% endblock items %}
+
+    <!-- Pagination -->
+    {% block pagination %}
+      <ul class="pagination justify-content-center mb-4">
+        {% if start == 0 %}
+          <li class="page-item disabled">
+        {% else %}
+          <li class="page-item">
+        {% endif %}
+            {% widthratio pagesize -1 1 as p %}
+            <a class="page-link" href="?start={{ start|add:p }}&pagesize={{ pagesize }}">&laquo; 上一页</a>
+          </li>
+        
+        {% if start|add:pagesize >= movies_count %}
+          <li class="page-item disabled">
+        {% else %}
+          <li class="page-item">
+        {% endif %}
+            <a class="page-link" href="?start={{ start|add:pagesize }}&pagesize={{ pagesize }}">下一页 &raquo;</a>
+          </li>
+      </ul>
+    {% endblock pagination %}
+  </div>
+{% endblock content %}

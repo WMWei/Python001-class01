@@ -22,3 +22,9 @@
 - 场景：在调试爬虫代码时，因为需要存储重复的数据到数据库，所以经常要手动删除mysql相应表的所有数据，但是执行`delete from table_name`时，数据库提示ERROR CODE 1175，不允许直接删除表所有数据
 - 排查：经查询，是因为MySql默认运行在`safe-updates`模式下，该模式会导致非主键条件下无法执行`update`或者`delete`命令
 - 解决：在运行命令前，执行`set SQL_SAFE_UPDATES=0`即可。安全起见，执行完删除后，再修改回`set SQL_SAFE_UPDATES=1`
+
+### 问题3
+
+- 问题：在模板中的`img`元素引用了正确的在线图片链接，但执行代码后，图片未加载。`img`请求返回403错误。
+- 原因：提供在线图片的网址可能做了防盗链处理。具体是通过检测请求头的`referrer`参数来达成防盗链处理。
+- 解决：为引用图片的`img`元素设置`referrerPolicy="no-referrer"`属性，不在请求头发送`referrer`参数即可解决。
