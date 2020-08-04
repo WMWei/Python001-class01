@@ -1,0 +1,51 @@
+{% block comment %}
+  {% for c in comments %}
+    <div class="media mb-4">
+      <!--
+      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="">
+      -->
+      <div class="media-body">
+        <h5 class="mt-0" id="{{ c.cid }}">
+          {{ c.user_name }}
+          <span><small>{{ c.date }} | {{ c.rate }}分</small></span>
+        </h5>
+        {{ c.comment }}
+      </div>
+    </div>
+    <hr>
+  {% empty %}
+  <div class="media-body">
+    <span>暂无评论！</span>
+  </div>
+  {% endfor %}
+{% endblock comment %}
+{% block pagination %}
+  <input type="hidden" id="start" value="{{ start }}" />
+  <input type="hidden" id="pagesize" value="{{ pagesize }}" />
+  <ul class="pagination justify-content-center mb-4">
+  {% if start == 0 %}
+      <li class="page-item disabled">
+  {% else %}
+      <li class="page-item">
+  {% endif %}
+        <a class="page-link" href="javascript:;" id="prev-comments-page">&laquo; 上一页</a>
+      </li>
+  
+  {% if start|add:pagesize >= comments_count %}
+      <li class="page-item disabled">
+  {% else %}
+      <li class="page-item">
+  {% endif %}
+        <a class="page-link" href="javascript:;" id="next-comments-page">下一页 &raquo;</a>
+      </li>
+  </ul>
+{% endblock pagination %}
+
+<script type="text/javascript">
+    $('#next-comments-page').click(function() {
+        next_page("{% url 'movies:comments' movie_id %}");
+    });
+    $('#prev-comments-page').click(function() {
+        prev_page("{% url 'movies:comments' movie_id %}");
+    });
+</script>

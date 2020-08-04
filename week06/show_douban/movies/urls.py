@@ -11,6 +11,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     # localhost:8000/movies/{mk}/
     path('<int:mk>/', views.detail, name='detail'),
-    # localhost:8000/comments?subject={}&start={}&count={}
-    # path('comments/<int:mk>', views.comments, name='comments')
+    # localhost:8000/movies/{mk}/comments/?start={}&pagesize={}&q={}
+    path('<int:mk>/comments/', views.comments, name='comments')
 ]
