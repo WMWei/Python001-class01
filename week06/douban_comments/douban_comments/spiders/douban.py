@@ -15,7 +15,7 @@ class DoubanSpider(scrapy.Spider):
 
     def start_requests(self):
         url = 'https://movie.douban.com/top250?start={}&filter='
-        urls = (url.format(i * 25) for i in range(1))
+        urls = (url.format(i * 25) for i in range(10))
         for link in urls:
             yield scrapy.Request(url=link, callback=self.list_parse)
     
@@ -38,7 +38,8 @@ class DoubanSpider(scrapy.Spider):
         ).get()
         # imdb id str
         movie_item['imdb_id'] = response.xpath(
-            '//div[@id="info"]/a[last()]/text()'
+            '//div[@id="info"]/span[text()="IMDb链接:"]'
+            '/following-sibling::a/text()'
         ).get()
         # 上映日期 str
         movie_item['release_date'] = response.xpath(
@@ -89,7 +90,7 @@ class DoubanSpider(scrapy.Spider):
         item = DoubanCommentsItem()
         item['movie_id'] = movie_item['movie_id']
         # 只取十页
-        comments_links = (comments_link.format(i * 20) for i in range(1))
+        comments_links = (comments_link.format(i * 20) for i in range(2))
         for link in comments_links:
             yield scrapy.Request(url=link,
                                  meta={'item': item},
@@ -100,11 +101,11 @@ class DoubanSpider(scrapy.Spider):
         comments_item = response.meta['item']
         # 评分与评价映射
         RATING_MAP = {
-            '力荐': 5,
-            '推荐': 4,
-            '还行': 3,
-            '较差': 2,
-            '很差': 1,
+            '力荐': 10,
+            '推荐': 8,
+            '还行': 6,
+            '较差': 4,
+            '很差': 2,
         }
         comments_infos = response.xpath('//div[@class="comment-item"]')
         for comment in comments_infos:
