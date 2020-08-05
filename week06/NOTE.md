@@ -1,5 +1,23 @@
 # 学习笔记
 
+## 作业中的一些jQuery技巧记录
+
+- 实现异步加载/翻页/查询：
+  - 单独编写需要异步加载的子页面模板，如`comments.html`；
+  - 利用`jQuery`，`$('#xxx').click()`or`$(document).on('click', '#xxx', function)`捕获页面操作；利用`$(window).ready()`捕获加载事件；
+  - 通过模板变量获取相应必要参数如`url`；
+  - 单独写js调用`.ajax()`发起异步请求；
+  - `views.py`中捕获异步请求的，渲染子页面模板，通过`JsonResponse`将渲染的html传递给`.ajax`；
+  - `.ajax`中通过`.html`在目标位置插入子页面；
+- 实现返回页首的悬浮图标：
+  - 在页面的任意位置（一般是页末）添加譬如`<a href="javascript:scroll(0, 0)">Top</a>`的元素，点击后，`href`属性会调用js的`scroll`函数，返回页首
+  - 编写相应的css为元素添加样式
+  - 编写`jQuery`，通过`$('#xxx').scrollTop()`捕获元素的位置，根据位置，通过`.addClass`/`.remveClass`等函数为元素设置属性进行显示/隐藏；
+- 实现异步翻页后定位到指定位置（如定位到第一条评论）
+  - 方式1：直接在按钮上使用`href="#xxx"`这样的锚点操作；（定位的锚点会显示在页面url上）
+  - 方式2：在按钮上调用`href="javascript:scroll(x, y)`；（不方便根据元素在页面的位置动态调整）
+  - 方式3：编写`jQuery`，利用`x = $('#xxx').offset().top`捕获目标位置的垂直坐标；`$(window).scrollTop(x)`定位到指定位置；
+
 ## 作业中遇到的问题及解决
 
 ### 问题1：`requests`库与`accept-encoding`
