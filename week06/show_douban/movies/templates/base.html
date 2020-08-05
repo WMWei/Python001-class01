@@ -22,7 +22,7 @@
 {% endblock head %}
 </head>
 
-<body>
+<body id="page-top">
 {% block body %}
   <!-- Navigation -->
   {% block nav %}
@@ -98,11 +98,17 @@
       <!-- /.container -->
     </footer>
   {% endblock footer %}
+  {% block scroll-to-top %}
+  <div class="back-top">
+    <a href="javascript:scroll(0,0)"><i>Top</i></a>
+  </div>
+  {% endblock scroll-to-top %}
 
   <!-- Bootstrap core JavaScript -->
   {% block script %}
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/scroll_to_top.js' %}"></script>
   {% endblock script %}
 {% endblock body %}
 </body>
