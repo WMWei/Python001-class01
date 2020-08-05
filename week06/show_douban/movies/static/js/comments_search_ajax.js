@@ -2,12 +2,17 @@ function prev_page(url,) {
     var page_no = parseInt($("#c-page-no").text());
     var page_size = parseInt($("#c-page-size").val());
     comments_search(url, page_no-1, page_size);
+    var offset_top = $("#comments-queries").offset().top;
+    $(window).scrollTop(offset_top);
+
 };
 
 function next_page(url,) {
     var page_no = parseInt($("#c-page-no").text());
     var page_size = parseInt($("#c-page-size").val());
     comments_search(url, page_no+1, page_size);
+    var offset_top = $("#comments-queries").offset().top;
+    $(window).scrollTop(offset_top);
 };
 
 //comments search
