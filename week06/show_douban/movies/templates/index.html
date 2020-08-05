@@ -62,7 +62,7 @@
             <a class="page-link" href="?pageNo={{ page_no|add:-1 }}&pageSize={{ page_size }}">&laquo; 上一页</a>
           </li>
         
-        {% if page_no >= paginator.num_page %}
+        {% if page_no >= paginator.num_pages %}
           <li class="page-item disabled">
         {% else %}
           <li class="page-item">

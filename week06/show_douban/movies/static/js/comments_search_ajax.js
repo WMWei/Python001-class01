@@ -1,12 +1,12 @@
-function prev_page(url, page_no, page_size) {
-    // var start = parseInt($("#start").val());
-    // var pagesize = parseInt($("#pagesize").val());
+function prev_page(url,) {
+    var page_no = parseInt($("#c-page-no").text());
+    var page_size = parseInt($("#c-page-size").val());
     comments_search(url, page_no-1, page_size);
 };
 
-function next_page(url, page_no, page_size) {
-    // var start = parseInt($("#start").val());
-    // var pagesize = parseInt($("#pagesize").val());
+function next_page(url,) {
+    var page_no = parseInt($("#c-page-no").text());
+    var page_size = parseInt($("#c-page-size").val());
     comments_search(url, page_no+1, page_size);
 };
 
@@ -37,7 +37,7 @@ function comments_search(url, page_no=1, page_size=10) {
             } else {
                 var error_text = '未知错误...'
             }
-            var newhtml = '<div class="media-body">' + error_text + '</div>';
+            var newhtml = '<ol class="breadcrumb"><li class="breadcrumb-item">' + error_text + '</li></ol>'
             $('#comments-page').html(newhtml);
         }
     })

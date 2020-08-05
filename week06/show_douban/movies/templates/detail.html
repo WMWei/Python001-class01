@@ -77,19 +77,24 @@
     $('#comments-get').click(function() {
         comments_search("{% url 'movies:comments' movie.movie_id %}");
     });
-    
-    $(window).ready(function(){
+    $('#comments-queries').keyup(function(event) {
+        if(event.keyCode == 13){
+            $('#comments-get').trigger("click");
+        };
+    });
+
+    $(document).ready(function(){
         comments_search("{% url 'movies:comments' movie.movie_id %}");
     });
+
+    $(document).on('click', '#next-comments-page', function() {
+        next_page("{% url 'movies:comments' movie.movie_id %}");
+    });
+    $(document).on('click', '#prev-comments-page', function() {
+        prev_page("{% url 'movies:comments' movie.movie_id %}");
+    });
+
   </script>
-  <!--<script type="text/javascript">
-    //$('#next-comments-page').click(function() {
-    //    next_page("{% url 'movies:comments' movie.movie_id %}");
-    //});
-    //$('#prev-comments-page').click(function() {
-    //    prev_page("{% url 'movies:comments' movie.movie_id %}");
-    //});
-  </script>-->
 {% endblock script %}
 
 

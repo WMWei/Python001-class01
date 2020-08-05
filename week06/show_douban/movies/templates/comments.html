@@ -1,9 +1,16 @@
 {% block comment %}
   <ol class="breadcrumb">
-    <li class="breadcrumb-item active">共{{ c_paginator.count }}条评论</li>
-    <li class="breadcrumb-item active">当前第 {{ page_no }} 页</li>
-    <li class="breadcrumb-item active">共 {{ c_paginator.num_pages }} 页</li>
+    <li class="breadcrumb-item active">共
+      <span>{{ c_paginator.count }}</span>
+    条评论</li>
+    <li class="breadcrumb-item active">当前第
+      <span id="c-page-no">{{ page_no }}</span>
+    页</li>
+    <li class="breadcrumb-item active">共 
+      <span>{{ c_paginator.num_pages }}</span>
+    页</li>
   </ol>
+  <input type="hidden" id="c-page-size" value="{{ page_size }}" />
   {% for c in comments %}
     <div class="media mb-4">
       <!--
@@ -21,8 +28,7 @@
   {% endfor %}
 {% endblock comment %}
 {% block pagination %}
-  <!--<input type="hidden" id="start" value="{{ start }}" />
-  <input type="hidden" id="pagesize" value="{{ pagesize }}" />-->
+  
   <ul class="pagination justify-content-center mb-4">
   {% if page_no == 1 %}
       <li class="page-item disabled">
@@ -42,11 +48,11 @@
   </ul>
 {% endblock pagination %}
 
-<script type="text/javascript">
+{% comment %} <script type="text/javascript">
     $('#next-comments-page').click(function() {
         next_page("{% url 'movies:comments' movie_id %}", {{ page_no }}, {{ page_size }});
     });
     $('#prev-comments-page').click(function() {
         prev_page("{% url 'movies:comments' movie_id %}", {{ page_no }}, {{ page_size }});
     });
-</script>
+</script> {% endcomment %}
