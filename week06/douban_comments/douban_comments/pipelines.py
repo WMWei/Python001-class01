@@ -29,6 +29,8 @@ class DoubanMoviesCommentsPipeline:
             charset=charset,
         )
         self.cur = self.conn.cursor()
+        # 取消外键约束以防止插入失败
+        self.cur.execute('SET FOREIGN_KEY_CHECKS=0;')
 
     # 插入数据
     def insert_one(self, table, values_dict):
@@ -52,6 +54,8 @@ class DoubanMoviesCommentsPipeline:
         return item
 
     def close_spider(self, spider):
+        # 执行完毕恢复约束
+        self.cur.execute('SET FOREIGN_KEY_CHECKS=1;')
         self.conn.commit()
         self.conn.close()
         print('结束运行')

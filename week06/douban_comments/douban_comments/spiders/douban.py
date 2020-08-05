@@ -15,7 +15,7 @@ class DoubanSpider(scrapy.Spider):
 
     def start_requests(self):
         url = 'https://movie.douban.com/top250?start={}&filter='
-        urls = (url.format(i * 25) for i in range(10))
+        urls = (url.format(i * 25) for i in range(1))
         for link in urls:
             yield scrapy.Request(url=link, callback=self.list_parse)
     
@@ -24,7 +24,7 @@ class DoubanSpider(scrapy.Spider):
         for link in links:
             item = DoubanMoviesItem()
             item['link'] = link
-            item['movie_id'] = int(link.strip('/').split('/')[-1])
+            item['movie_id'] = link.strip('/').split('/')[-1]
             yield scrapy.Request(url=link, 
                                  meta={'item': item}, 
                                  callback=self.item_parse)
@@ -109,7 +109,7 @@ class DoubanSpider(scrapy.Spider):
         }
         comments_infos = response.xpath('//div[@class="comment-item"]')
         for comment in comments_infos:
-            # 评论id int
+            # 评论id str
             comments_item['cid'] = comment.xpath('@data-cid').get()
             # 用户名 str
             comments_item['user_name'] = comment.xpath(
