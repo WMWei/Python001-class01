@@ -1,21 +1,21 @@
-function prev_page(url) {
-    var start = parseInt($("#start").val());
-    var pagesize = parseInt($("#pagesize").val());
-    comments_search(url, start-pagesize, pagesize);
+function prev_page(url, page_no, page_size) {
+    // var start = parseInt($("#start").val());
+    // var pagesize = parseInt($("#pagesize").val());
+    comments_search(url, page_no-1, page_size);
 };
 
-function next_page(url) {
-    var start = parseInt($("#start").val());
-    var pagesize = parseInt($("#pagesize").val());
-    comments_search(url, start+pagesize, pagesize);
+function next_page(url, page_no, page_size) {
+    // var start = parseInt($("#start").val());
+    // var pagesize = parseInt($("#pagesize").val());
+    comments_search(url, page_no+1, page_size);
 };
 
 //comments search
-function comments_search(url, start=0, pagesize=10) {
+function comments_search(url, page_no=1, page_size=10) {
     var q_str =  $("#comments-queries").val().replace(" ", "+"); // 获取查询输入框的值
     var data = {
-        "start": start,
-        "pagesize": pagesize,
+        "pageNo": page_no,
+        "pageSize": page_size,
         "q": q_str,
     };  // 打包成get请求发送的数据
 

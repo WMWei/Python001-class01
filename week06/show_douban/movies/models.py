@@ -1,12 +1,17 @@
 from django.db import models
 
 class Comments(models.Model):
-    cid = models.IntegerField(
+    id = models.IntegerField(
         primary_key=True,
+        
+        verbose_name='id',
+    )
+    cid = models.CharField(
+        max_length=20,
         verbose_name='评论id',
     )
     user_name = models.CharField(
-        max_length=45,
+        max_length=50,
         blank=True,
         null=True,
         verbose_name='用户名',
@@ -45,8 +50,9 @@ class Comments(models.Model):
 
 
 class Movies(models.Model):
-    movie_id = models.IntegerField(
+    movie_id = models.CharField(
         primary_key=True,
+        max_length=20,
         verbose_name='电影id',
     )
     imdb_id = models.CharField(
@@ -78,13 +84,13 @@ class Movies(models.Model):
         verbose_name='电影时长',
     )
     area = models.CharField(
-        max_length=20,
+        max_length=50,
         blank=True,
         null=True,
         verbose_name='区域',
     )
     language = models.CharField(
-        max_length=20,
+        max_length=60,
         blank=True,
         null=True,
         verbose_name='语言',

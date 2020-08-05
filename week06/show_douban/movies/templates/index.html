@@ -14,7 +14,8 @@
       <li class="breadcrumb-item">
         <a href="{% url 'movies:index' %}">电影列表</a>
       </li>
-      <li class="breadcrumb-item active">第 {{ cur_page_num }} 页</li>
+      <li class="breadcrumb-item active">第 {{ page_no }} 页</li>
+      <li class="breadcrumb-item active">共 {{ paginator.num_pages }} 页</li>
     </ol>
     {% endblock pagehead %}
 
@@ -53,21 +54,20 @@
     <!-- Pagination -->
     {% block pagination %}
       <ul class="pagination justify-content-center mb-4">
-        {% if start == 0 %}
+        {% if page_no == 1 %}
           <li class="page-item disabled">
         {% else %}
           <li class="page-item">
         {% endif %}
-            {% widthratio pagesize -1 1 as p %}
-            <a class="page-link" href="?start={{ start|add:p }}&pagesize={{ pagesize }}">&laquo; 上一页</a>
+            <a class="page-link" href="?pageNo={{ page_no|add:-1 }}&pageSize={{ page_size }}">&laquo; 上一页</a>
           </li>
         
-        {% if start|add:pagesize >= movies_count %}
+        {% if page_no >= paginator.num_page %}
           <li class="page-item disabled">
         {% else %}
           <li class="page-item">
         {% endif %}
-            <a class="page-link" href="?start={{ start|add:pagesize }}&pagesize={{ pagesize }}">下一页 &raquo;</a>
+            <a class="page-link" href="?pageNo={{ page_no|add:1 }}&pageSize={{ page_size }}">下一页 &raquo;</a>
           </li>
       </ul>
     {% endblock pagination %}
