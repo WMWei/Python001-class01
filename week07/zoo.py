@@ -23,14 +23,15 @@ class Animal(ABC):
                 self.category == '食肉')
     
     def __str__(self):
-        return f'{self.__class__.__name__}: {self.name}'
+        return (f'({self.__class__.__name__}: '
+                f'{self.name},'
+                f'{self.category},'
+                f'{self.size},'
+                f'{self.character},'
+                f'凶猛动物({self.is_violent}))')
+
     
-    def __repr__(self):
-        return (f'{self.__class__.__name__!r}'
-                f'({self.name!r},'
-                f'{self.category!r},'
-                f'{self.size!r},'
-                f'{self.character!r})')
+    __repr__ = __str__
 
 
 
@@ -51,16 +52,16 @@ class Zoo(object):
     def add_animal(self, animal: 'Animal'):
         if animal not in self.__animals:
             self.__animals.add(animal)
-            print(f'添加{animal}到"{self.name}"成功')
+            print(f'添加{animal!s}到"{self.name}"成功')
         else:
-            print(f'{animal}已经存在于"{self.name}"中')
+            print(f'{animal!s}已经存在于"{self.name}"中')
     
     def __getattr__(self, class_: str) -> bool:
         return any(class_ == animal.__class__.__name__
                    for animal in self.__animals)
     
     def __str__(self):
-        return f'动物园：{self.name}\n动物：{self.__animals}'
+        return f'动物园：{self.name}\n动物：{self.__animals!s}'
 
 
 if __name__ == '__main__':
