@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 # 动物类
 # 抽象基类
 class Animal(ABC):
-
+    @abstractmethod
     def __init__(self,
                  name: str,
                  category: str,
@@ -30,13 +30,18 @@ class Animal(ABC):
                 f'{self.character},'
                 f'凶猛动物({self.is_violent}))')
 
-    
     __repr__ = __str__
 
 
 
 class Cat(Animal):
     Voice = '喵~'
+    def __init__(self,
+                 name: str,
+                 category: str,
+                 size: str,
+                 character: str):
+        super().__init__(name, category, size, character)
 
     @property
     def as_pet(self) -> bool:
@@ -47,18 +52,13 @@ class Cat(Animal):
 class Zoo(object):
     def __init__(self, name):
         self.name = name
-        self.__animals = set()
+        self.__animals = {}
 
     def add_animal(self, animal: 'Animal'):
-        if animal not in self.__animals:
-            self.__animals.add(animal)
-            print(f'添加{animal!s}到"{self.name}"成功')
-        else:
-            print(f'{animal!s}已经存在于"{self.name}"中')
-    
+        self.__animals.setdefault(animal.__class__.__name__, set()).add(animal)
+
     def __getattr__(self, class_: str) -> bool:
-        return any(class_ == animal.__class__.__name__
-                   for animal in self.__animals)
+        return class_ in self.__animals
     
     def __str__(self):
         return f'动物园：{self.name}\n动物：{self.__animals!s}'
