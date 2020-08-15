@@ -3,7 +3,9 @@ from typing import Callable, Iterable, Iterator
 
 def my_map(function: Callable, *iters: Iterable,) -> Iterator:
     '''
-    返回一个将 function 应用于 iterable 中每一项并输出其结果的迭代器。 如果传入了额外的 iterable 参数，function 必须接受相同个数的实参并被应用于从所有可迭代对象中并行获取的项。 当有多个可迭代对象时，最短的可迭代对象耗尽则整个迭代就将结束。
+    - 返回一个将 function 应用于 iterable 中每一项并输出其结果的迭代器。
+    - 如果传入了额外的 iterable 参数，function 必须接受相同个数的实参并被应用于从所有可迭代对象中并行获取的项。
+    - 当有多个可迭代对象时，最短的可迭代对象耗尽则整个迭代就将结束。
     '''
     for iter_ in iters:
         if not hasattr(iter_, '__iter__'):
