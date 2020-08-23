@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from .form import LoginForm
 
 
-@login_required
+@login_required(login_url='login/')
 def home(request):
     return render(request, 'home.html')
 
@@ -28,11 +28,7 @@ def login_view(request):
                 return redirect(f'{reverse("myapp:home")}')
             else:
                 messages.error(request, '用户名或者密码错误')
-                return render(
-                    request,
-                    'login.html',
-                    locals(),
-                )
+                return redirect(f'{reverse("myapp:login")}')
     # 如果是get请求，返回登录的表单页面
     if request.method == 'GET':
         form = LoginForm()
