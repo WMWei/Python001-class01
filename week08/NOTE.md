@@ -281,7 +281,7 @@ func()  # 调用func实际调用的是Timer实例的__call__方法
 
 - `dataclasses`模块提供了一个装饰器和一些函数，用于自动添加生成的一些魔术方法，如`__init__`
 
-- ``@``dataclasses.``dataclass`(***, *init=True*, *repr=True*, *eq=True*, *order=False*, *unsafe_hash=False*, *frozen=False*)` 
+- ``@``dataclasses.``dataclass`(***, *init=True*, *repr=True*, *eq=True*, *order=False*, *unsafe_hash=False*, *frozen=False*)`
 
   - 装饰器检查并找到具有**类型标注的类变量**，基于这些类变量，生成相应的魔术方法，包括`__init__`、`__repr__`等；
 
