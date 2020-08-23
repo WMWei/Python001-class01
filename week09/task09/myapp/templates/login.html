@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+<p>请输入用户名密码</p>
+<form action="/login" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="登录">
+</form>
+{% if messages %}
+  {% for message in messages %}
+    <span>{{ message.message }}</span>
+  {% endfor %}
+{% endif %}
+
+</body>
+</html>
