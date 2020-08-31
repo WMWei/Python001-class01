@@ -18,6 +18,7 @@ class ProductItem(scrapy.Item):
     price_from = scrapy.Field()
     # 产品类别
     category = scrapy.Field()
+    category_en = scrapy.Field()
     # id
     pid = scrapy.Field()
     # img

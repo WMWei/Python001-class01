@@ -11,14 +11,28 @@ from smzdm.items import ProductItem, CommentItem
 class SmzdmCommentsSpider(scrapy.Spider):
     name = 'smzdm_comments'
     allowed_domains = ['www.smzdm.com']
-    start_urls = ['http://www.smzdm.com/']
+    start_urls = ['http://www.smzdm.com/fenlei']
 
     def start_requests(self):
-        index_url = 'https://www.smzdm.com/fenlei/nanzhuang/h5c4s0f0t0p1/'
-        yield Request(url=index_url, callback=self.index_parse)
+        for i in self.start_urls:
+            yield Request(url=i, callback=self.tag_parse)
+
+    def tag_parse(self, response):
+        # 获取前十个分类
+        tag_urls = response.xpath(
+            '//div[@class="title"]/h2/a/@href'
+        ).getall()[:10]
+        for link in tag_urls:
+            category_en = link.split('/')[-2]
+            # 24小时排行
+            yield Request(
+                url=link + 'h5c4s0f0t0p1/', 
+                meta={'category_en': category_en},
+                callback=self.index_parse)
 
     # 获得商品页和评论页
     def index_parse(self, response):
+        category_en = response.meta['category_en']
         products_info = response.xpath(
             '//div[@class="feed-block z-hor-feed"]'
         )[:10]
@@ -55,6 +69,7 @@ class SmzdmCommentsSpider(scrapy.Spider):
             item['category'] = response.xpath(
                 '//h1[@class="category-title"]/text()'
             ).get().strip()
+            item['category_en'] = category_en
             # 图片
             item['img'] = product.xpath(
                 'div[@class="z-feed-img"]'
@@ -124,7 +139,7 @@ class SmzdmCommentsSpider(scrapy.Spider):
                 '/div[@class="blockquote_wrap"]'
                 '/blockquote/@blockquote_cid'
             ).getall()
-            print(parent_comment)
+            
             if parent_comment:
                 comment_item['parent_cid'] = parent_comment[-1].strip()
             else:
