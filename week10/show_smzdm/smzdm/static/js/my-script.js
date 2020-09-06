@@ -82,7 +82,7 @@ function sent_analysis(url) {
                     {
                         name: '情感倾向',
                         type: 'pie',
-                        radius: ['50%', '70%'],
+                        radius: ['70%', '90%'],
                         avoidLabelOverlap: false,
                         label: {
                             show: false,
@@ -123,52 +123,3 @@ function sent_analysis(url) {
         }
     })
 }
-
-// pie
-// function draw_pie() {
-//     // 基于准备好的dom，初始化echarts实例
-//     var myChart = echarts.init(document.getElementById('pie'));
-//     var plus = parseInt($("#plus").text());
-//     var minus = parseInt($("#minus").text());
-
-//     // 指定图表的配置项和数据
-//     var option = {
-//         tooltip: {
-//             trigger: 'item',
-//             formatter: '{a} <br/>{b}: {c} ({d}%)'
-//         },
-//         legend: {
-//             orient: 'vertical',
-//             left: 10,
-//             data: ['正向评价', '负向评价']
-//         },
-//         series: [
-//             {
-//                 name: '情感倾向',
-//                 type: 'pie',
-//                 radius: ['50%', '70%'],
-//                 avoidLabelOverlap: false,
-//                 label: {
-//                     show: false,
-//                     position: 'center'
-//                 },
-//                 emphasis: {
-//                     label: {
-//                         show: true,
-//                         fontSize: '30',
-//                         fontWeight: 'bold'
-//                     }
-//                 },
-//                 labelLine: {
-//                     show: false
-//                 },
-//                 data: [
-//                     {value: plus, name: '正向评价'},
-//                     {value: minus, name: '负向平'},
-//                 ]
-//             }
-//         ]
-//     };
-//     // 使用刚指定的配置项和数据显示图表。
-//         myChart.setOption(option);
-// }

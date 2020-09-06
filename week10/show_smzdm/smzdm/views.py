@@ -217,15 +217,9 @@ def analysis(request, pid):
             data['params']['plus'] = all_comments.filter(sentiments__gte=0.5).count()
             # 负面数量
             data['params']['minus'] = data['params']['c_count'] - data['params']['plus']
-        data['html'] = render_to_string(
+        data['page'] = render_to_string(
             'analysis.html',
-            context={
-                'pid': pid,
-                'c_count': 0,
-                'plus': 0,
-                'minus': 0,
-                'sent_avg': 0,
-            },
+            context=data['params'],
         )
         
         return JsonResponse(data, status=data['status'])
