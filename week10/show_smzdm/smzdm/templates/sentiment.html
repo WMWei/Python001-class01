@@ -1,0 +1,83 @@
+{% extends "detail.html" %}
+{% load my_tags %}
+{% load static %}
+
+
+{% block product_tag %}
+    <a class="nav-link" href="{% url 'smzdm:detail' product.pid %}">产品详情</a>
+{% endblock product_tag %}
+{% block sentiment_tag %}
+    <a class="nav-link disabled" href="{% url 'smzdm:sentiment' product.pid %}">舆情分析</a>
+{% endblock sentiment_tag %}
+
+{% block info %}
+  <div class="row">
+    <div class="col-xl-7 col-lg-7" id="graph-card">
+    </div>
+    {% block pie %}
+    <!-- Pie Chart -->
+    <div class="col-xl-5 col-lg-5">
+      <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">情感倾向</h6>
+          <div class="dropdown no-arrow">
+            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+              <div class="dropdown-header">Dropdown Header:</div>
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </div>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body" >
+          <div class="chart-pie pt-4 pb-2" id="pie">
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock pie %}
+  </div>
+  {% endblock info %}
+
+
+{% block my_script %}
+  {% comment %} <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script> {% endcomment %}
+  {% comment %} <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script> {% endcomment %}
+  <script src="https://cdn.bootcss.com/echarts/4.2.1/echarts.min.js"></script>
+  <script type="text/javascript">
+    // 捕获评论搜索操作
+    $('#search-submit').click(function() {
+        comments_search("{% url 'smzdm:comments' product.pid %}");
+        sent_analysis("{% url 'smzdm:analysis' product.pid %}");
+        //draw_pie();
+    });
+    $('#search-str').keyup(function(event) {
+        if(event.keyCode == 13){
+            $('#search-submit').trigger("click");
+        };
+    });
+    
+    // 第一次进入 or 刷新页面时 异步加载评论
+    $(document).ready(function(){
+        comments_search("{% url 'smzdm:comments' product.pid %}");
+        sent_analysis("{% url 'smzdm:analysis' product.pid %}");
+        //draw_pie();
+    });
+    // 翻页异步加载，这里将异步页面操作绑定到主页面
+    $(document).on('click', '#next-comments-page', function() {
+        next_page("{% url 'smzdm:comments' product.pid %}");
+    });
+    $(document).on('click', '#prev-comments-page', function() {
+        prev_page("{% url 'smzdm:comments' product.pid %}");
+    });
+  </script>
+
+
+{% endblock my_script %}
+

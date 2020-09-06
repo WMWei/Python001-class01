@@ -7,14 +7,23 @@ smzdm - {{ product.title }}
 {% endblock title %}
 {% block container %}
   {% block pagehead %}
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item">
-        <a target="_blank" href="{% url 'smzdm:category' product.category_en %}">{{ product.category }}</a>
-      </li>
-      <li class="breadcrumb-item">
-        产品详情
-      </li>
-    </ol>
+    <nav class="navbar navbar-expand navbar-light bg-light mb-1">
+      <h5 class="navbar-brand">{{ product.category }} > {{ product.title }}</h5>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item no-arrow mx-1">
+          {% block product_tag %}
+          <a class="nav-link disabled" href="{% url 'smzdm:detail' product.pid %}">产品详情</a>
+          {% endblock product_tag %}
+
+        </li>
+        <li class="nav-item no-arrow mx-1">
+          {% block sentiment_tag %}
+          <a class="nav-link" href="{% url 'smzdm:sentiment' product.pid %}">舆情分析 </a>
+          {% endblock sentiment_tag %}
+        
+        </li>
+      </ul>
+    </nav>
   {% endblock pagehead %}
   {% block info %}
   <div class="card mb-4">
@@ -66,7 +75,9 @@ smzdm - {{ product.title }}
 
 {% block script %}
   {{ block.super }}
+  
   <script src="{% static 'js/my-script.js' %}"></script>
+  {% block my_script %}
   <script type="text/javascript">
     // 捕获评论搜索操作
     $('#search-submit').click(function() {
@@ -92,4 +103,6 @@ smzdm - {{ product.title }}
     });
 
   </script>
+  {% endblock my_script %}
+
 {% endblock script %}

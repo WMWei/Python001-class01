@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Avg
 from django.http import JsonResponse
 from django.shortcuts import (
     render,
@@ -129,6 +129,7 @@ def comments(request, pid):
             *queries,
         ).order_by('-pub_date')
         if all_comments.exists():
+            # 计算分页
             c_paginator = Paginator(all_comments, PAGE_SIZE)
             try:
                 comments = c_paginator.page(page_no)
@@ -159,5 +160,78 @@ def comments(request, pid):
     return render(
         request,
         'detail.html',
+        locals()
+    )
+
+
+@require_http_methods(['GET'])
+def sentiment(request, pid):
+    try:
+        product = Products.objects.get(pid=pid)
+    except Products.DoesNotExist as _:
+        return render(
+            request,
+            '404.html',
+            status=404
+        )
+    return render(
+        request,
+        # 'detail.html',
+        'sentiment.html',
+        locals()
+    )
+
+
+@require_http_methods(['GET'])
+def analysis(request, pid):
+    product = get_object_or_404(Products, pid=pid)
+    if request.is_ajax():
+        params = request.GET
+        # 获取查询参数
+        query_str = params.get('q', '')
+        queries = [Q(comment__contains=q) for q in query_str.split('+') if q]
+
+        # 获取查询结果，并处理为json可以输出格式
+        data = {
+            'status': 200,
+            'page': None,
+            'params': {
+                'pid': pid,
+                'c_count': 0,
+                'plus': 0,
+                'minus': 0,
+                'sent_avg': 0,
+            },
+        }
+        all_comments = product.comments_set.filter(
+            pid=pid,
+            *queries,
+        ).order_by('-pub_date')
+        if all_comments.exists():
+            # 基于获取到的评论内容计算舆情分析
+            # 评论数量
+            data['params']['c_count'] = all_comments.count()
+            # 平均情感倾向
+            data['params']['sent_avg'] = f"{all_comments.aggregate(Avg('sentiments'))['sentiments__avg']:0.2f}"
+            # 正向数量
+            data['params']['plus'] = all_comments.filter(sentiments__gte=0.5).count()
+            # 负面数量
+            data['params']['minus'] = data['params']['c_count'] - data['params']['plus']
+        data['html'] = render_to_string(
+            'analysis.html',
+            context={
+                'pid': pid,
+                'c_count': 0,
+                'plus': 0,
+                'minus': 0,
+                'sent_avg': 0,
+            },
+        )
+        
+        return JsonResponse(data, status=data['status'])
+
+    return render(
+        request,
+        'sentiment.html',
         locals()
     )
