@@ -1,4 +1,6 @@
+from datetime import tzinfo
 from django.db import models
+from django.utils import timezone
 
 
 class Comments(models.Model):
@@ -67,6 +69,11 @@ class Comments(models.Model):
         verbose_name_plural = verbose_name
         ordering = ['-pub_date']
     
+    @property
+    def local_pub_date(self):
+        # 解决Django从数据库读取时间，无论数据库时区为何，总是默认为UTC的问题
+        return self.pub_date.replace(tzinfo=timezone.get_current_timezone())
+    
     def __str__(self):
         return f'{self.cid}, {self.username}, {self.comment}'
 
@@ -132,8 +139,17 @@ class Products(models.Model):
         verbose_name_plural = verbose_name
         ordering = ['-pub_date']
     
-    def comments_count(self):
-        return self.comments_set.count()
+    @property
+    def local_pub_date(self):
+        # 解决Django从数据库读取时间，无论数据库时区为何，总是默认为UTC的问题
+        return self.pub_date.replace(tzinfo=timezone.get_current_timezone())
+
+    @classmethod
+    def get_category(cls):
+        return cls.objects.values(
+            'category_en',
+            'category'
+        ).order_by('category_en').distinct()
 
     def __str__(self):
         return f'{self.pid}, {self.title}, {self.price}'

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load my_tags %}
+{% load static %}
+
+{% block title %}
+smzdm - {{ product.title }}
+{% endblock title %}
+{% block container %}
+  {% block pagehead %}
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a target="_blank" href="{% url 'smzdm:category' product.category_en %}">{{ product.category }}</a>
+      </li>
+      <li class="breadcrumb-item">
+        产品详情
+      </li>
+    </ol>
+  {% endblock pagehead %}
+  {% block info %}
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-lg-4">
+          <a href="{{ product.link }}" referrerPolicy="no-referrer">
+            <img class="img-fluid rounded" src="{{ product.img }}" alt="暂无海报" referrerPolicy="no-referrer">
+          </a>
+        </div>
+        <div class="col-lg-8">
+          <h3 class="h3 mb-1 text-gray-800">{{ product.title }}</h3>
+          <h5 class="h5 mb-1 text-primary">{{ product.price }}</h5>
+
+          <p class="card-text">
+            <span>发布时间：{{ product.local_pub_date }}</span><br />
+            <span>发布平台：{{ product.price_from }}</span><br />
+          </p>
+          {% comment %} <p class="lead">--</p> {% endcomment %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock info %}
+  {% block comments_info %}
+    <div class="row">
+      <div class="col-lg-12">
+        {% block comments_search %}
+          <div class="card mb-4">
+            <h6 class="h6 card-header">搜索评论</h6>
+            <div class="card-body">
+              <div class="input-group">
+                <input type="text" class="form-control bg-light border-0 small" placeholder="搜索评论" id="search-str">
+                <span class="input-group-append">
+                  <button class="btn btn-primary" type="button" id="search-submit"><i class="fas fa-search fa-sm"></i></button>
+                </span>
+              </div>
+            </div>
+          </div>
+        {% endblock comments_search %}
+      </div>
+      <div class="col-lg-12" id="comments-page">
+        {% block comments %}
+        {% endblock comments %}
+      </div>
+    </div>
+  {% endblock comments_info %}
+{% endblock container %}
+
+{% block script %}
+  {{ block.super }}
+  <script src="{% static 'js/my-script.js' %}"></script>
+  <script type="text/javascript">
+    // 捕获评论搜索操作
+    $('#search-submit').click(function() {
+        comments_search("{% url 'smzdm:comments' product.pid %}");
+    });
+    $('#search-str').keyup(function(event) {
+        if(event.keyCode == 13){
+            $('#search-submit').trigger("click");
+        };
+    });
+    
+    // 第一次进入 or 刷新页面时 异步加载评论
+    $(document).ready(function(){
+        comments_search("{% url 'smzdm:comments' product.pid %}");
+    });
+
+    // 翻页异步加载，这里将异步页面操作绑定到主页面
+    $(document).on('click', '#next-comments-page', function() {
+        next_page("{% url 'smzdm:comments' product.pid %}");
+    });
+    $(document).on('click', '#prev-comments-page', function() {
+        prev_page("{% url 'smzdm:comments' product.pid %}");
+    });
+
+  </script>
+{% endblock script %}

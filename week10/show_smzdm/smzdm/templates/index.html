@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load my_tags %}
+
+{% block title %}
+smzdm index - {{ cate_zh }}
+{% endblock title %}
+
+{% block container %}
+{% block pagehead %}
+  
+  <nav class="navbar navbar-expand navbar-light bg-light mb-1">
+    <h5 class="navbar-brand">{{ cate_zh }}</h5>
+    {% block pagination %}
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item no-arrow mx-1">
+        {% if page_no == 1 %}
+          <a class="nav-link disabled" href="?&pageNo={{ page_no|add:-1 }}&q={{ q }}">&laquo; 上一页</a>
+        {% else %}
+          <a class="nav-link" href="?&pageNo={{ page_no|add:-1 }}&q={{ q }}">&laquo; 上一页</a>
+        {% endif %}
+        </li>
+        <li class="nav-item no-arrow mx-1">
+          <a class="nav-link disabled" href="javascript:;">{{ page_no }}/{{ paginator.num_pages }}</a>
+        </li>
+        <li class="nav-item no-arrow mx-1">
+        {% if page_no >= paginator.num_pages %}
+          <a class="nav-link disabled" href="?&pageNo={{ page_no|add:1 }}&q={{ q }}">下一页 &raquo;</a>
+        {% else %}
+          <a class="nav-link" href="?&pageNo={{ page_no|add:1 }}&q={{ q }}">下一页 &raquo;</a>
+        {% endif %}
+        </li>
+      </ul>
+    {% endblock pagination %}
+  </nav>
+{% endblock pagehead %}
+
+{% block items %}
+<div class="row">
+  {% for product in products %}
+    <div class="col-lg-3 col-sm-6 mb-4 portfolio-item">
+      <div class="card shadow h-100">
+        {% comment %} <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary text-truncate">{{ product.category }}</h6>
+        </div> {% endcomment %}
+        <div class="card-body">
+          <div class="text-center">
+            <a target="_blank" rel="nofollow" href="{% url 'smzdm:detail' product.pid %}">
+              <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="{{ product.img }}" alt="{{ product.title }}" referrerPolicy="no-referrer">
+            </a>
+          </div>
+          <h6 class="card-title text-primary">
+            <a target="_blank" rel="nofollow" href="{% url 'smzdm:detail' product.pid %}">{{ product.title }}</a>
+          </h6>
+          <p class="card-text">
+            {{ product.price }}
+          </p>
+        </div>
+        <div class="card-footer text-muted">
+          <span>{{ product.local_pub_date }} | {{ product.price_from }}</span>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-lg-12">
+        <p class="text-gray-500 mb-0">暂无内容...</p>
+    </div>
+  {% endfor %}
+
+</div>
+{% endblock items %}
+{% endblock container %}

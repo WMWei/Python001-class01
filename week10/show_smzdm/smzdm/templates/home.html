@@ -5,48 +5,61 @@
 smzdm
 {% endblock title %}
 {% block container %}
+  {% block pagehead %}
+    <nav class="navbar navbar-expand navbar-light bg-light mb-1">
+      {% comment %} <h5 class="navbar-brand"></h5> {% endcomment %}
+      <ul class="navbar-nav ml-auto">
+      {% home_sub_category as sub_category %}
+      {% for sub_cate_en, sub_cate_zh in sub_category.items %}
+      <li class="nav-item no-arrow mx-1">
+      {% if sub_cate == sub_cate_en %}
+          <a class="nav-link disabled" href="{% url 'smzdm:home' %}?sort={{ sub_cate_en }}">{{ sub_cate_zh }}</a>
+      {% else %}
+          <a class="nav-link" href="{% url 'smzdm:home' %}?sort={{ sub_cate_en }}">{{ sub_cate_zh }}</a>
+      {% endif %}
+      </li>
+      {% endfor %}
+      </ul>
+    </nav>
+  {% endblock pagehead %}
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item active">
-      <a href="javascript:;">最新</a>
-    </li>
-    <li class="breadcrumb-item">
-      <a href="#" class="active">最热</a>
-    </li>
-</ol>
 
-<div class="row">
+  <div class="row">
+    {% if sub_cate == 'new' %}
+      {% get_recent_products as get_products %}
+    {% else %}
+      {% get_hot_products as get_products %}
+    {% endif %}
 
-  {% get_recent_products as recent_products %}
-  {% for recent_product in recent_products %}
-    <div class="col-lg-3 col-sm-6 mb-4 portfolio-item">
-      <div class="card shadow h-100">
-        <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary text-truncate">{{ recent_product.category }}</h6>
-        </div>
-        <div class="card-body">
-          <div class="text-center">
-            <a target="_blank" rel="nofollow" href="{% url 'smzdm:detail' recent_product.pid %}">
-              <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="{{ recent_product.img }}" alt="{{ recent_product.title }}" referrerPolicy="no-referrer">
-            </a>
+    {% for product in get_products %}
+      <div class="col-lg-3 col-sm-6 mb-4 portfolio-item">
+        <div class="card shadow h-100">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary text-truncate">
+            <a target="_blank" href="{% url 'smzdm:category' product.category_en %}">{{ product.category }}</a>
+            </h6>
           </div>
-          <h6 class="card-title text-primary">
-            <a target="_blank" rel="nofollow" href="{% url 'smzdm:detail' recent_product.pid %}">{{ recent_product.title }}</a>
-          </h6>
-          <p class="card-text">
-            {{ recent_product.price }}
-          </p>
-        </div>
-        <div class="card-footer text-muted">
-          {{ recent_product.pub_date }} | {{ recent_product.price_from }}
+          <div class="card-body">
+            <div class="text-center">
+              <a target="_blank" rel="nofollow" href="{% url 'smzdm:detail' product.pid %}">
+                <img class="img-fluid px-3 px-sm-4 mt-3 mb-4" style="width: 25rem;" src="{{ product.img }}" alt="{{ product.title }}" referrerPolicy="no-referrer">
+              </a>
+            </div>
+            <h6 class="card-title text-primary">
+              <a target="_blank" rel="nofollow" href="{% url 'smzdm:detail' product.pid %}">{{ product.title }}</a>
+            </h6>
+            <p class="card-text">{{ product.price }}</p>
+          </div>
+          <div class="card-footer text-muted">
+            <span>{{ product.local_pub_date }} | {{ product.price_from }}</span>
+          </div>
         </div>
       </div>
-    </div>
-  {% empty %}
-    <div class="col-lg-12">
+    {% empty %}
+      <div class="col-lg-12">
         <p class="text-gray-500 mb-0">暂无内容...</p>
-    </div>
-  {% endfor %}
+      </div>
+    {% endfor %}
 
-</div>
+  </div>
 {% endblock container %}

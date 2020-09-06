@@ -83,6 +83,7 @@ class SmzdmCommentsSpider(scrapy.Spider):
                 '/span/text()'
             ).get().strip()
             item['pub_date'] = self.get_datetime(pub_date_str)
+            print(item['pub_date'])
             yield item
 
             yield Request(

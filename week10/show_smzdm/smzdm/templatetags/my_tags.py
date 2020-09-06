@@ -1,4 +1,5 @@
 from django import template
+from django.db.models import Count
 from ..models import Products, Comments
 
 
@@ -15,13 +16,21 @@ def get_recent_products(num: int=4):
 # 最热门产品
 @register.simple_tag
 def get_hot_products(num: int=4):
-    return Products.objects.all().order_by('comments_count')[:num]
+    return Products.objects.annotate(
+        Count('comments')
+    ).order_by('-comments__count')[:num]
 
 
-# 分类
+# 获取分类
 @register.simple_tag
-def category():
-    return Products.objects.values(
-        'category', 
-        'category_en'
-    ).order_by('category').distinct()
+def product_category():
+    return Products.get_category()
+
+
+# 最新/最热标签
+@register.simple_tag
+def home_sub_category():
+    return {
+        'new': '最新',
+        'hot': '最热',
+    }

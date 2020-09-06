@@ -1,0 +1,61 @@
+{% block comments %}
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item active">共
+      <span>{{ c_paginator.count }}</span>
+    条评论</li>
+    <li class="breadcrumb-item active">当前第
+      <span id="c-page-no">{{ page_no }}</span>
+    页</li>
+    <li class="breadcrumb-item active">共 
+      <span>{{ c_paginator.num_pages }}</span>
+    页</li>
+  </ol>
+  <input type="hidden" id="c-page-size" value="{{ page_size }}" />
+  {% for c in comments %}
+    <div class="media mb-4">
+      <img class="d-flex mr-3 rounded-circle" src="{{ c.avatar}}" alt="暂无头像" referrerPolicy="no-referrer">
+      <div class="media-body">
+        <h4 class="small font-weight-bold" id="{{ c.cid }}">
+          {{ c.username }}
+          <span class="float-right text-gray-500">{{ c.local_pub_date }}</span>
+        </h4>
+        {% if c.parent_cid is not None %}
+          {% with parent_comment=c.parent_cid %}
+            <div class="media mt-4 mb-4 bg-gray-200">
+              <img class="d-flex ml-3 mr-3 mt-2 rounded-circle" src="{{ parent_comment.avatar }}" alt="暂无头像" referrerPolicy="no-referrer">
+              <div class="media-body mr-3">
+                <h4 class="small font-weight-bold mt-2" id="{{ parent_comment.cid }}">
+                  {{ parent_comment.username }}
+                  <span class="float-right text-gray-500">{{ parent_comment.local_pub_date }}</span>
+                </h4>
+                <p>{{ parent_comment.comment }}</p>
+              </div>
+            </div>
+          {% endwith %}
+        {% endif %}
+        <p>{{ c.comment }}</p>
+      </div>
+    </div>
+    <hr>
+  {% endfor %}
+{% endblock comments %}
+
+{% block pagination %}  
+  <ul class="pagination justify-content-center mb-4">
+  {% if page_no == 1 %}
+      <li class="page-item disabled">
+  {% else %}
+      <li class="page-item">
+  {% endif %}
+        <a class="page-link" href="javascript:;" id="prev-comments-page">&laquo; 上一页</a>
+      </li>
+  
+  {% if page_no >= c_paginator.num_pages %}
+      <li class="page-item disabled">
+  {% else %}
+      <li class="page-item">
+  {% endif %}
+        <a class="page-link" href="javascript:;" id="next-comments-page">下一页 &raquo;</a>
+      </li>
+  </ul>
+{% endblock pagination %}

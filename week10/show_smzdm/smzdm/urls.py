@@ -6,12 +6,13 @@ from . import views
 app_name = 'smzdm'
 
 urlpatterns = [
-    # localhost:8000/
+    # localhost:8000/?cate=<str>
+    # new or hot
     path('', views.home, name='home'),
-    path('hot/', views.home, name='hot'),
-    # localhost:8000/index/
-    # localhost:8000/index/<str:cate>/?pageNo={}&q={}
+    # localhost:8000/index/?pageNo={}&q={}
     path('index/', views.index, name='index'),
+    # localhost:8000/index/<str:cate>/?pageNo={}&q={}
+    path('index/<str:cate>/', views.index, name='category'),
     # localhost:8000/p/  # 404
     # localhost:8000/p/<int:pid>/
     path('p/<int:pid>/', views.detail, name='detail'),
