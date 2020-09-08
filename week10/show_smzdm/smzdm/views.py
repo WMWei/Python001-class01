@@ -11,7 +11,9 @@ from django.core.paginator import (
     EmptyPage,
     PageNotAnInteger,
 )
+
 from .models import Products, Comments
+from .encoder import DatetimeJSONEncoder
 
 
 # 主页
@@ -33,6 +35,7 @@ def home(request):
         )
 
 
+# 目录页
 @require_http_methods(['GET'])
 def index(request, cate=None):
     # localhost:8000/index/?pageNo={}&q={}
@@ -94,6 +97,7 @@ def index(request, cate=None):
     )
 
 
+# 商品详情页
 @require_http_methods(['GET'])
 def detail(request, pid):
     try:
@@ -111,6 +115,7 @@ def detail(request, pid):
     )
 
 
+# 详情评论页/ajax页
 @require_http_methods(['GET'])
 def comments(request, pid):
     product = get_object_or_404(Products, pid=pid)
@@ -182,47 +187,66 @@ def sentiment(request, pid):
     )
 
 
+# 分析页面数据获取/ajax
 @require_http_methods(['GET'])
 def analysis(request, pid):
     product = get_object_or_404(Products, pid=pid)
     if request.is_ajax():
-        params = request.GET
-        # 获取查询参数
-        query_str = params.get('q', '')
-        queries = [Q(comment__contains=q) for q in query_str.split('+') if q]
+        # params = request.GET
+        # # 获取查询参数
+        # query_str = params.get('q', '')
+        # queries = [Q(comment__contains=q) for q in query_str.split('+') if q]
 
-        # 获取查询结果，并处理为json可以输出格式
-        data = {
-            'status': 200,
-            'page': None,
-            'params': {
-                'pid': pid,
-                'c_count': 0,
-                'plus': 0,
-                'minus': 0,
-                'sent_avg': 0,
-            },
-        }
-        all_comments = product.comments_set.filter(
-            pid=pid,
-            *queries,
-        ).order_by('-pub_date')
-        if all_comments.exists():
-            # 基于获取到的评论内容计算舆情分析
-            # 评论数量
-            data['params']['c_count'] = all_comments.count()
-            # 平均情感倾向
-            data['params']['sent_avg'] = f"{all_comments.aggregate(Avg('sentiments'))['sentiments__avg']:0.2f}"
-            # 正向数量
-            data['params']['plus'] = all_comments.filter(sentiments__gte=0.5).count()
-            # 负面数量
-            data['params']['minus'] = data['params']['c_count'] - data['params']['plus']
-        data['page'] = render_to_string(
-            'analysis.html',
-            context=data['params'],
-        )
         
-        return JsonResponse(data, status=data['status'])
+        comments = product.comments_set.filter(
+            pid=pid,
+            # *queries,
+        )
+        # 记录查询结果，输出为json
+        data = {}
+
+        # if comments.exists():
+        # 基于获取到的评论内容计算舆情分析
+        # 评论数量
+        c_count = comments.count()
+        # 平均情感倾向
+        sent_avg = f"{comments.aggregate(Avg('sentiments'))['sentiments__avg']:0.2f}"
+        # 正向数量
+        plus = comments.filter(sentiments__gte=0.5).count()
+        # 负面数量
+        minus = c_count - plus
+
+        # card block需要的数据
+        data['card_params'] = {
+            'c_count': c_count,
+            'plus': plus,
+            'minus': minus,
+            'sent_avg': sent_avg,
+        }
+        # data['pie_page'] = render_to_string(
+        #     'pie.html',
+        #     locals(),
+        # )
+
+        # table 需要的数据
+        data['table_data'] = list(comments.values(
+            "cid",
+            "username",
+            "pub_date",
+            "comment",
+            "sentiments",
+        ))
+        data['pie_page'] = None
+        data['status'] = 200
+
+        # 设置自定义的JSONEncoder用于日期的格式显示
+        # 标准JSONEncoder的日期格式化字符串显示不美观
+        return JsonResponse(
+            data,
+            status=data['status'],
+            safe=False,
+            encoder=DatetimeJSONEncoder
+            )
 
     return render(
         request,

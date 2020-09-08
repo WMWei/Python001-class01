@@ -49,65 +49,37 @@ function comments_search(url, page_no=1, page_size=10) {
 }
 
 
-//sentiments analysis
-function sent_analysis(url) {
-    var q_str =  $("#search-str").val().replace(" ", "+"); // 获取查询输入框的值
-    var data = {
-        "q": q_str,
-    };  // 打包成get请求发送的数据
-    // 用于加载echart的Pie图标
-    var myChart = echarts.init(document.getElementById('pie'));
+function get_analysis(url) {
+    // var q_str =  $("#search-str").val().replace(" ", "+"); // 获取查询输入框的值
+    // var data = {
+    //     "q": q_str,
+    // };  // 打包成get请求发送的数据
 
     $.ajax({
         type: 'get',
         url: url,
-        data: data,
+        //data: data,
         dataType: 'json',
         success: function(ret) {
-            var newhtml = ret.page;
-            var minus = parseInt(ret.params.minus);
-            var plus = parseInt(ret.params.plus);
-            // 指定图表的配置项和数据
-            var option = {
-                tooltip: {
-                    trigger: 'item',
-                    formatter: '{a} <br/>{b}: {c} ({d}%)'
-                },
-                legend: {
-                    orient: 'vertical',
-                    left: 10,
-                    data: ['正向评价', '负向评价']
-                },
-                series: [
-                    {
-                        name: '情感倾向',
-                        type: 'pie',
-                        radius: ['70%', '90%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            show: false,
-                            position: 'center'
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: '30',
-                                fontWeight: 'bold'
-                            }
-                        },
-                        labelLine: {
-                            show: false
-                        },
-                        data: [
-                            {value: plus, name: '正向评价'},
-                            {value: minus, name: '负向评价'},
-                        ]
-                    }
-                ]
-            };
-            // 使用刚指定的配置项和数据显示图表。
-            $('#graph-card').html(newhtml);
-            myChart.setOption(option);
+            // card
+            var card_params = ret.card_params;
+            // pie
+            var pie_labels = ['正向情感', '负向情感'];
+            var pie_datas = [card_params.plus, card_params.minus];
+            var bg_colors = ['#1cc88a', '#e74a3b'];
+            var hbg_colors = ['#17a673', '#e74a3b'];
+            var hbord_colors = "rgba(234, 236, 244, 1)";
+            // table
+            var table_data = ret.table_data;
+            // 渲染表格
+            // 渲染汇总数据
+            $('#c_count').append(card_params.c_count);
+            $('#plus').append(card_params.plus);
+            $('#minus').append(card_params.minus);
+            $('#sent_avg').append(card_params.sent_avg);
+            get_pie(pie_labels, pie_datas, bg_colors, hbg_colors, hbord_colors);
+            get_table(table_data);
+
         },
         error: function(XMLHttpRequest) {
             var _code = XMLHttpRequest.status;
@@ -118,8 +90,84 @@ function sent_analysis(url) {
             } else {
                 var error_text = '未知错误...'
             }
-            var newhtml = '<ol class="breadcrumb"><li class="breadcrumb-item">' + error_text + '</li></ol>'
+            var newhtml = '<p class="lead text-gray-800 mb-5">'+ error_text + '</p>'
             $('#graph-card').html(newhtml);
+            //$('#graph-pie').html(newhtml);
+            $('#graph-table').html(newhtml);
         }
     })
+}
+
+// 渲染table
+
+
+function get_table(comments) {
+    // 渲染table
+    $('#dataTable').DataTable( {
+        // 特性
+        "processing": true,
+        // 数据
+        "data": comments,
+        // 单元格格式
+        "columns": [
+            {
+                "data": "cid",
+                "width": "5%",
+            },
+            {
+                "data": "username",
+                "width": "10%",
+            },
+            {
+                "data": "pub_date",
+                "width": "10%",
+            },
+            {
+                "data": "comment",
+                "width": "80%",
+            },
+            {
+                "data": "sentiments",
+                "width": "5%",
+            },
+        ]
+      } );
+}
+
+// 渲染 pie
+Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#858796';
+
+// Pie Chart Example
+function get_pie(labels, datas, bg_colors, hbg_colors, hbord_colors) {
+    var ctx = document.getElementById("myPieChart");
+    var myPieChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: labels,
+        datasets: [{
+        data: datas,
+        backgroundColor: bg_colors,
+        hoverBackgroundColor: hbg_colors,
+        hoverBorderColor: hbord_colors,
+        }],
+    },
+    options: {
+        maintainAspectRatio: false,
+        tooltips: {
+        backgroundColor: "rgb(255,255,255)",
+        bodyFontColor: "#858796",
+        borderColor: '#dddfeb',
+        borderWidth: 1,
+        xPadding: 15,
+        yPadding: 15,
+        displayColors: false,
+        caretPadding: 10,
+        },
+        legend: {
+        display: false
+        },
+        cutoutPercentage: 80,
+    },
+    });
 }

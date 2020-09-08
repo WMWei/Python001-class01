@@ -6,8 +6,7 @@ from . import views
 app_name = 'smzdm'
 
 urlpatterns = [
-    # localhost:8000/?cate=<str>
-    # new or hot
+    # localhost:8000/?sort=<str>  new or hot
     path('', views.home, name='home'),
     # localhost:8000/index/?pageNo={}&q={}
     path('index/', views.index, name='index'),
@@ -15,10 +14,10 @@ urlpatterns = [
     path('index/<str:cate>/', views.index, name='category'),
     # localhost:8000/p/<int:pid>/
     path('p/<int:pid>/', views.detail, name='detail'),
-    # localhost:8000/p/<int:pid>/comments/?pageNo={}&q={}
+    # localhost:8000/p/<int:pid>/comments/?pageNo={}&q={}  ajax
     path('p/<int:pid>/comments/', views.comments, name='comments'),
     # localhost:8000/p/<int:pid>/sentiment/
     path('p/<int:pid>/sentiment/', views.sentiment, name='sentiment'),
-    # localhost:8000/p/<int:pid>/analysis/
+    # localhost:8000/p/<int:pid>/analysis/  ajax
     path('p/<int:pid>/analysis/', views.analysis, name='analysis'),
 ]
