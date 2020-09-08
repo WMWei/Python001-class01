@@ -100,11 +100,31 @@ function get_analysis(url) {
 
 // 渲染table
 // datatable js
+// $.fn.dataTable.ext.search.push(
+//     function( settings, data, dataIndex ) {
+//         var end = parseInt( $('#start').val(), 10 );
+//         var start = parseInt( $('#end').val(), 10 );
+//         var date = parseFloat( data[2] ) || 0; // use data for the age column
+ 
+//         if ( ( isNaN( start ) && isNaN( end ) ) ||
+//              ( isNaN( start ) && date <= end ) ||
+//              ( start <= date   && isNaN( end ) ) ||
+//              ( start <= date   && age <= end ) )
+//         {
+//             return true;
+//         }
+//         return false;
+//     }
+// );
 
 function get_table(comments) {
+    
     // 渲染table
+    // var table =
     $('#dataTable').DataTable( {
         // 特性
+        "scrollY": "200px",
+        "paging": false,
         "processing": true,
         // 数据
         "data": comments,
@@ -130,8 +150,12 @@ function get_table(comments) {
                 "data": "sentiments",
                 "width": "5%",
             },
-        ]
+        ],
+        "order": [[2, 'desc']]
       } );
+    // $('#start, #end').keyup( function() {
+        // table.draw();
+    // });
 }
 
 // 渲染 pie
