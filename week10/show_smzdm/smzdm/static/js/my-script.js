@@ -120,11 +120,11 @@ function get_table(comments) {
             },
             {
                 "data": "pub_date",
-                "width": "10%",
+                "width": "25%",
             },
             {
                 "data": "comment",
-                "width": "80%",
+                "width": "65%",
             },
             {
                 "data": "sentiments",
