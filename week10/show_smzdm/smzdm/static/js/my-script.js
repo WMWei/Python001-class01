@@ -99,7 +99,7 @@ function get_analysis(url) {
 }
 
 // 渲染table
-
+// datatable js
 
 function get_table(comments) {
     // 渲染table
@@ -139,6 +139,7 @@ Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,Bli
 Chart.defaults.global.defaultFontColor = '#858796';
 
 // Pie Chart Example
+// chartjs
 function get_pie(labels, datas, bg_colors, hbg_colors, hbord_colors) {
     var ctx = document.getElementById("myPieChart");
     var myPieChart = new Chart(ctx, {
@@ -146,26 +147,31 @@ function get_pie(labels, datas, bg_colors, hbg_colors, hbord_colors) {
     data: {
         labels: labels,
         datasets: [{
-        data: datas,
-        backgroundColor: bg_colors,
-        hoverBackgroundColor: hbg_colors,
-        hoverBorderColor: hbord_colors,
+            data: datas,
+            backgroundColor: bg_colors,
+            hoverBackgroundColor: hbg_colors,
+            hoverBorderColor: hbord_colors,
         }],
     },
     options: {
+        responsive: true,
         maintainAspectRatio: false,
         tooltips: {
-        backgroundColor: "rgb(255,255,255)",
-        bodyFontColor: "#858796",
-        borderColor: '#dddfeb',
-        borderWidth: 1,
-        xPadding: 15,
-        yPadding: 15,
-        displayColors: false,
-        caretPadding: 10,
+            backgroundColor: "rgb(255,255,255)",
+            bodyFontColor: "#858796",
+            borderColor: '#dddfeb',
+            borderWidth: 1,
+            xPadding: 15,
+            yPadding: 15,
+            displayColors: false,
+            caretPadding: 10,
         },
         legend: {
-        display: false
+            display: true,
+            position: 'bottom',
+            // align: 'start',
+            //onClick: ,
+            // onHover:,
         },
         cutoutPercentage: 80,
     },

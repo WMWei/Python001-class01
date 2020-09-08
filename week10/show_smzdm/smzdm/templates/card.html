@@ -1,7 +1,7 @@
-<div class="col-xl-7 col-lg-7" id="graph-card">
+<div class="col-xl-6 col-lg-6" id="graph-card">
   <!-- 评论数量 -->
-  <div class="mb-4">
-    <div class="card border-left-primary shadow h-100 py-2">
+  {% comment %} <div class="mb-4"> {% endcomment %}
+    <div class="card border-left-primary shadow mb-4 py-2">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
           <div class="col mr-2">
@@ -14,45 +14,10 @@
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- 正向评价数量 -->
-  <div class="mb-4">
-    <div class="card border-left-success shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">正向评价数量</div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800" id="plus"></div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-laugh-beam fa-2x text-success"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 负向评价数量 -->
-  <div class="mb-4">
-    <div class="card border-left-danger shadow h-100 py-2">
-      <div class="card-body">
-        <div class="row no-gutters align-items-center">
-          <div class="col mr-2">
-            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">负向评价数量</div>
-            <div class="h5 mb-0 font-weight-bold text-gray-800" id="minus"></div>
-          </div>
-          <div class="col-auto">
-            <i class="fas fa-grimace fa-2x text-danger"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
+  {% comment %} </div> {% endcomment %}
   <!-- 平均情感倾向 -->
-  <div class="mb-4">
-    <div class="card border-left-info shadow h-100 py-2">
+  {% comment %} <div class="mb-4"> {% endcomment %}
+    <div class="card border-left-info shadow mb-4 py-2">
       <div class="card-body">
         <div class="row no-gutters align-items-center">
           <div class="col mr-2">
@@ -65,5 +30,42 @@
         </div>
       </div>
     </div>
-  </div>
+  {% comment %} </div> {% endcomment %}
+{% comment %} </div>
+<div class="col-xl-4 col-lg-4"> {% endcomment %}
+  <!-- 正向评价数量 -->
+  {% comment %} <div class="mb-4"> {% endcomment %}
+    <div class="card border-left-success shadow mb-4 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">正向评价数量</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800" id="plus"></div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-laugh-beam fa-2x text-success"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% comment %} </div> {% endcomment %}
+
+  <!-- 负向评价数量 -->
+  {% comment %} <div class="mb-4"> {% endcomment %}
+    <div class="card border-left-danger shadow mb-4 py-2">
+      <div class="card-body">
+        <div class="row no-gutters align-items-center">
+          <div class="col mr-2">
+            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">负向评价数量</div>
+            <div class="h5 mb-0 font-weight-bold text-gray-800" id="minus"></div>
+          </div>
+          <div class="col-auto">
+            <i class="fas fa-grimace fa-2x text-danger"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% comment %} </div> {% endcomment %}
+
+  
 </div>
