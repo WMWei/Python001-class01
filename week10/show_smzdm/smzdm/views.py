@@ -12,8 +12,15 @@ from django.core.paginator import (
     PageNotAnInteger,
 )
 
+from datetime import (
+    datetime,
+    timezone,
+    timedelta
+)
+
 from .models import Products, Comments
 from .encoder import DatetimeJSONEncoder
+
 
 
 # 主页
@@ -192,7 +199,24 @@ def sentiment(request, pid):
 def analysis(request, pid):
     product = get_object_or_404(Products, pid=pid)
     if request.is_ajax():
-        # params = request.GET
+        params = request.GET
+        # 查询列表
+        queries = []
+        # 获取时间搜索参数
+        time_range = params.get('timeRange', '')
+        if time_range:
+            start_time, end_time = time_range.split(' - ')
+            start_time = datetime.strptime(
+                start_time,
+                '%Y-%m-%d %H:%M:%S'
+            ).replace(tzinfo=timezone.utc)
+            queries.append(Q(pub_date__gt=start_time))
+            end_time = datetime.strptime(
+                end_time,
+                '%Y-%m-%d %H:%M:%S'
+            ).replace(tzinfo=timezone.utc)
+            queries.append(Q(pub_date__lt=end_time))
+
         # # 获取查询参数
         # query_str = params.get('q', '')
         # queries = [Q(comment__contains=q) for q in query_str.split('+') if q]
@@ -200,44 +224,43 @@ def analysis(request, pid):
         
         comments = product.comments_set.filter(
             pid=pid,
-            # *queries,
+            *queries,
         )
         # 记录查询结果，输出为json
         data = {}
 
-        # if comments.exists():
-        # 基于获取到的评论内容计算舆情分析
-        # 评论数量
-        c_count = comments.count()
-        # 平均情感倾向
-        sent_avg = f"{comments.aggregate(Avg('sentiments'))['sentiments__avg']:0.2f}"
-        # 正向数量
-        plus = comments.filter(sentiments__gte=0.5).count()
-        # 负面数量
-        minus = c_count - plus
+        if comments.exists():
+            # 基于获取到的评论内容计算舆情分析
+            # 评论数量
+            c_count = comments.count()
+            # 平均情感倾向
+            sent_avg = f"{comments.aggregate(Avg('sentiments'))['sentiments__avg']:0.2f}"
+            # 正向数量
+            plus = comments.filter(sentiments__gte=0.5).count()
+            # 负面数量
+            minus = c_count - plus
 
-        # card block需要的数据
-        data['card_params'] = {
-            'c_count': c_count,
-            'plus': plus,
-            'minus': minus,
-            'sent_avg': sent_avg,
-        }
-        # data['pie_page'] = render_to_string(
-        #     'pie.html',
-        #     locals(),
-        # )
+            # card block需要的数据
+            data['card_params'] = {
+                'c_count': c_count,
+                'plus': plus,
+                'minus': minus,
+                'sent_avg': sent_avg,
+            }
 
-        # table 需要的数据
-        data['table_data'] = list(comments.values(
-            "cid",
-            "username",
-            "pub_date",
-            "comment",
-            "sentiments",
-        ))
-        data['pie_page'] = None
-        data['status'] = 200
+            # table 需要的数据
+            data['table_data'] = list(comments.values(
+                "cid",
+                "username",
+                "pub_date",
+                "comment",
+                "sentiments",
+            ))
+            data['status'] = 200
+        else:
+            data['status'] = 200
+            data['table_data'] = []
+            data['card_params'] = None
 
         # 设置自定义的JSONEncoder用于日期的格式显示
         # 标准JSONEncoder的日期格式化字符串显示不美观
