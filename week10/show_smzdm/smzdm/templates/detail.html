@@ -6,7 +6,7 @@
 smzdm - {{ product.title }}
 {% endblock title %}
 {% block container %}
-  {% include 'detail_head.html' with info_status='disabled' %}
+  {% include "detail_head.html" with info_status="disabled" %}
 
   {% block info %}
   <div class="card mb-4">
@@ -35,17 +35,7 @@ smzdm - {{ product.title }}
     <div class="row">
       <div class="col-lg-12">
         {% block comments_search %}
-          <div class="card mb-4">
-            <h6 class="h6 card-header">搜索评论</h6>
-            <div class="card-body">
-              <div class="input-group">
-                <input type="text" class="form-control bg-light border-0 small" placeholder="搜索评论" id="search-str">
-                <span class="input-group-append">
-                  <button class="btn btn-primary" type="button" id="search-submit"><i class="fas fa-search fa-sm"></i></button>
-                </span>
-              </div>
-            </div>
-          </div>
+          {% include "search.html" %}
         {% endblock comments_search %}
       </div>
       <div class="col-lg-12" id="comments-page">
@@ -63,12 +53,12 @@ smzdm - {{ product.title }}
   {% block my_script %}
   <script type="text/javascript">
     // 捕获评论搜索操作
-    $('#search-submit').click(function() {
+    $("#search-submit").click(function() {
         comments_search("{% url 'smzdm:comments' product.pid %}");
     });
-    $('#search-str').keyup(function(event) {
+    $("#search-str").keyup(function(event) {
         if(event.keyCode == 13){
-            $('#search-submit').trigger("click");
+            $("#search-submit").trigger("click");
         };
     });
     
@@ -78,10 +68,10 @@ smzdm - {{ product.title }}
     });
 
     // 翻页异步加载，这里将异步页面操作绑定到主页面
-    $(document).on('click', '#next-comments-page', function() {
+    $(document).on("click", "#next-comments-page", function() {
         next_page("{% url 'smzdm:comments' product.pid %}");
     });
-    $(document).on('click', '#prev-comments-page', function() {
+    $(document).on("click", "#prev-comments-page", function() {
         prev_page("{% url 'smzdm:comments' product.pid %}");
     });
 

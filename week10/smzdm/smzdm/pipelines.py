@@ -37,7 +37,7 @@ class SmzdmPipeline:
         keys, values = zip(*values_dict)
         # 注意重复数据不写入
         sql = (
-            f'INSERT IGNORE INTO `{table}` '
+            f'REPLACE INTO `{table}` '
             f'(`{"`,`".join(keys)}`) '
             f'VALUES ({", ".join("%s" for _ in keys)});'
         )

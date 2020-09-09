@@ -83,7 +83,6 @@ class SmzdmCommentsSpider(scrapy.Spider):
                 '/span/text()'
             ).get().strip()
             item['pub_date'] = self.get_datetime(pub_date_str)
-            print(item['pub_date'])
             yield item
 
             yield Request(
@@ -146,9 +145,9 @@ class SmzdmCommentsSpider(scrapy.Spider):
             else:
                 comment_item['parent_cid'] = None
             # 情感分析
-            comment_item['sentiments'] = SnowNLP(
+            comment_item['sentiments'] = round(SnowNLP(
                 comment_item['comment']
-            ).sentiments
+            ).sentiments, 2)
             yield comment_item
 
         # 翻页

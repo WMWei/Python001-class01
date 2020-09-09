@@ -9,23 +9,24 @@ smzdm - {{ product.title }}
 {% block styles %}
   {{ block.super }}
   <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+  <link href="{% static 'css/daterangepicker.css' %}" rel="stylesheet" />
 {% endblock styles %}
 
 {% block container %}
-  {% include 'detail_head.html' with ana_status='disabled' %}
+  {% include "detail_head.html" with ana_status="disabled" %}
 
   {% block info %}
     <div class="row">
   {% block card %}
-    {% include 'card.html' %}
+    {% include "card.html" %}
   {% endblock card %}
   {% block pie %}
-    {% include 'pie.html' %}
+    {% include "pie.html" %}
   {% endblock pie %}
   </div>
   <div class="row">
     {% block table %}
-      {% include 'table.html' %}
+      {% include "table.html" %}
     {% endblock table %}
     
   </div>
@@ -39,25 +40,27 @@ smzdm - {{ product.title }}
   <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
   <!-- pie -->
   <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+  <script src="{% static 'js/moment.js' %}"></script>
+  <script src="{% static 'js/daterangepicker.js' %}"></script>
   <script src="{% static 'js/my-script.js' %}"></script>
   {% block my_script %}
   <script type="text/javascript">
     // 第一次进入 or 刷新页面加载
         $(document).ready(function(){
-            //get_table("{% url 'smzdm:analysis' product.pid %}")
-            // 加载页面
-            get_analysis("{% url 'smzdm:analysis' product.pid %}");
+            get_table("{% url 'smzdm:analysis' product.pid %}");
+            //get_analysis("{% url 'smzdm:analysis' product.pid %}");
         });
     // 捕获评论搜索操作
-    $('#search-submit').click(function() {
-        get_analysis("{% url 'smzdm:analysis' product.pid %}");
-    });
-    $('#search-str').keyup(function(event) {
-        if(event.keyCode == 13){
-            $('#search-submit').trigger("click");
-        };
-    });
+    // $("#search-submit").click(function() {
+    //     get_analysis("{% url 'smzdm:analysis' product.pid %}");
+    // });
+    // $("#search-str").keyup(function(event) {
+    //     if(event.keyCode == 13){
+    //         $("#search-submit").trigger("click");
+    //     };
+    // });
   </script>
+  
   {% endblock my_script %}
 
 {% endblock script %}

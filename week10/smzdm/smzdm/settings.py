@@ -15,8 +15,8 @@ NEWSPIDER_MODULE = 'smzdm.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = 'smzdm (+http://www.yourdomain.com)'
-from fake_useragent import UserAgent
-USER_AGENT = UserAgent(verify_ssl=False).random
+# from fake_useragent import UserAgent
+# USER_AGENT = UserAgent(verify_ssl=False).random
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -27,7 +27,7 @@ ROBOTSTXT_OBEY = False
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-DOWNLOAD_DELAY = 3
+DOWNLOAD_DELAY = 1
 # The download delay setting will honor only one of:
 #CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #CONCURRENT_REQUESTS_PER_IP = 16
@@ -52,15 +52,18 @@ COOKIES_ENABLED = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
+DOWNLOADER_MIDDLEWARES = {
 #    'smzdm.middlewares.SmzdmDownloaderMiddleware': 543,
-#}
+    'crawl_utils.scrapy.middlewares.RandomUserAgentMiddleware': 500,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
-#EXTENSIONS = {
+EXTENSIONS = {
 #    'scrapy.extensions.telnet.TelnetConsole': None,
-#}
+    "crawl_utils.scrapy.extensions.TimeStats": 0,
+    "crawl_utils.scrapy.extensions.ServerInfo": 0,
+}
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
@@ -89,7 +92,10 @@ ITEM_PIPELINES = {
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-
+RETRY_TIMES = 20
+DOWNLOAD_WARNSIZE = 0
+DOWNLOAD_TIMEOUT = 90
+LOGSTATS_INTERVAL = 5
 # MySQL Setting
 MYSQL_HOST = '127.0.0.1'
 MYSQL_PORT = 3306
@@ -109,4 +115,4 @@ LOG_FILE = f"{time.strftime('%Y%m%d-%H%M%S')}.log"
 LOG_ENCODING='utf-8'
 LOG_FORMAT='%(asctime)s [%(name)s] %(levelname)s: %(message)s'
 LOG_DATEFORMAT='%Y-%m-%d %H:%M:%S'
-LOG_LEVEL='ERROR'
+LOG_LEVEL='INFO'
